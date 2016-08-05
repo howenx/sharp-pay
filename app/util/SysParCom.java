@@ -127,7 +127,7 @@ public class SysParCom {
     public static Boolean PAY_SHOW_WEIXIN;
     //支付宝支付是否显示
     public static Boolean PAY_SHOW_ALIPAY;
-    
+
 
     @Inject
     public SysParCom(SkuService skuService, Configuration configuration) {
