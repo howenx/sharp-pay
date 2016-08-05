@@ -1,0 +1,278 @@
+/* all base */
+body{
+    margin: 0;
+}
+*{
+    box-sizing: border-box;
+}
+hr{
+    margin: 0;
+}
+h1,h2,h3,h4,h5,h6{
+    margin: 0;
+}
+/************ pay-style ***********/
+.pay-change-padding{
+padding:44px 0 0 0;
+}
+.pay-change span{
+    display: inline-block;
+    margin: 10px 0 10px 10px;
+    color: #686868;
+}
+.pay-change em{
+    font-style: normal;
+    float: right;margin: 10px 10px 10px 0;
+    color: #f15353;
+}
+.pay{
+    width: 100%;height: 35px;padding-left: 55px;
+    margin: 10px 0;position: relative;
+}
+.pay span{
+    font-size: 15px;
+    color: #333;
+    margin-top: 10px;
+    line-height: 15px;
+    display: block;
+}
+.pay em{
+    font-style: normal;
+    font-size: 12px;
+    color: #999;
+    display: inline-block;
+    margin-top: 8px;
+}
+.pay .right-icon{
+    width: 18px;height: 30px;
+    position: absolute;right: 5px;top: 8px;
+    background: url("/assets/images/right.png") no-repeat;background-size: 11px;
+}
+.weixin{
+    background: url("/assets/images/home-pay-icon.png") no-repeat 10px -140px;background-size: 35px;
+}
+.jingdong{
+    background: url("/assets/images/home-pay-icon.png") no-repeat 10px -70px;background-size: 35px;
+}
+.alipay{
+    background: url("/assets/images/alipayicon.png") no-repeat 10px ;background-size: 35px;
+}
+/************ pay-result1 ***************/
+.pay-result{
+    width: 100%;height: auto;
+}
+.pay-result h2{
+    background: rgb(37,41,44);text-align: center;
+    color: #fff;padding: 20px 0;
+}
+.pay-result .pay-suc{
+    margin-top: 20px;background: #fff;
+    padding: 20px 20px;
+}
+.pay-result .pay-suc .icon-suc{
+    width: 64px;height: 64px;
+    background: url("/assets/images/iconfont-iconsuccess.png") no-repeat;
+    background-size: 100%;
+    float: left;
+}
+.pay-result .pay-suc span{
+    display: inline-block;height: 64px;
+    line-height: 64px;padding-left: 15%;
+    color: rgb(106,106,106);font-size: 24px;
+}
+.pay-result .pay-money{
+    background: rgb(232,232,232);overflow: hidden;
+    margin-top: 20px;
+}
+.pay-result .pay-money div{
+    width: 70%;padding-left: 15px;
+   float: left;line-height: 64px;
+    font-size: 18px;
+}
+.pay-result .pay-money .money-num{
+    width: 30%;padding-left: 0;
+}
+.pay-result .pay-money>div em{
+    float: right;
+    color: red;font-style: normal;
+}
+.pay-result .pay-money>div span{
+    float: right;padding-right: 15px;
+    padding-left: 0;
+    font-size: 18px;
+}
+.pay-result .btn{
+    width: 100%;padding: 20px 20px 0;
+}
+.pay-result button{
+    width: 100%;line-height: 64px;
+    background: rgb(216,68,76);
+    border: 0;outline: none;
+    font-size: 24px;color: #fff;
+    padding:0;
+}
+/************ pay-result2 ***************/
+.order-pay{
+    width: 100%;height: auto;text-align: center;
+}
+.order-pay h2{
+    background: rgb(253,253,253);position: relative;
+    color: rgb(56,56,56);padding: 20px 0;
+}
+.order-pay h2 span{
+    position: absolute;top: 30%;right: 15px;
+    color: #ccc;
+}
+.order-pay .order-fni{
+    background: #fff;
+    padding-top: 20px;
+}
+.order-pay .icon-order-suc{
+    width: 64px;height: 64px;margin: 20px auto;
+    background: url("/assets/images/success.png") no-repeat;
+    background-size: 100%;
+}
+.order-pay .pay-suc h3{
+    margin: 15px auto;
+}
+.order-pay .pay-suc h3 span{
+    color: red;
+}
+.order-pay .btn-pay button{
+    width: 40%;height: 48px;
+    background: rgb(253,253,253);border: 2px solid #ccc;
+    border-radius: 5px;font-size: 18px;color: rgb(157,157,157);
+    outline: none;margin-bottom: 15px;
+}
+.order-pay h4{
+    color: rgb(154,154,154);line-height: 1.2;
+    padding: 10px 15px;text-align: left;
+}
+/********** order-pay-failed *************/
+.order-pay .icon-order-fail{
+    width: 64px;height: 64px;margin: 20px auto;
+    background: url("/assets/images/fail.png") no-repeat;
+    background-size: 100%;
+}
+/***************** refund *****************/
+.refund h2{
+    background: rgb(253,253,253);position: relative;
+    color: rgb(56,56,56);padding: 20px 0;text-align: center;
+}
+.refund .refund-all{
+    padding: 15px;
+}
+.refund .refund-order h3,.refund .refund-money h3{
+    padding-bottom: 15px;
+}
+.refund .refund-reason{
+    font-size: 14px;
+}
+.refund .refund-reason h3{
+    padding-bottom: 15px;
+}
+.refund input[type=text]{
+    border: 1px solid #cacaca;
+        border-radius: 4px;
+        -webkit-border-radius: 4px;
+        line-height: 18px;
+        font-size: 14px;
+        height: 34px;
+        width: 10%;
+        box-shadow: none;
+}
+.refund input[type=checkbox]{
+    border: 1px solid #ccc;margin-left: 10px;
+    padding: 10px 0;
+}
+.refund textarea{
+    resize: none;margin-left: 15px;outline: none;
+    width: 80%;
+    margin-top: 10px;border: 1px solid #ccc;
+}
+.refund .btn{
+    text-align: center;
+}
+.refund button{
+    width: auto;padding: 5px 10px;margin-top: 10px;
+    background: rgb(216,68,76);
+    border: 0;outline: none;
+    font-size: 24px;color: #fff;
+}
+
+
+/*支付扫二维码*/
+.e-box {
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5);
+    position: fixed;
+    top:0;
+    z-index:100;
+}
+.e-box .pos{
+    position: absolute;
+    top:50%;
+    left: 50%;
+    -webkit-transform: translate(-50%,-50%);
+    -moz-transform: translate(-50%,-50%);
+    text-align: center;
+}
+
+
+.examine,.succeed{
+    display:block;
+    margin:20px 0;
+    width:100%;
+    height: 35px;
+    line-height:35px;
+    border-radius: 20px;
+    border: 1px solid #ff5359;
+    color: #fff;
+    text-decoration:none;
+}
+
+.examine{
+    border: 1px solid #ff5359;
+    background-color: #ff5359;
+
+}
+
+.head {
+    position:fixed;
+    width: 100%;
+    height:44px;
+    line-height:44px;
+    background-color:#ff5359;
+    z-index: 998;
+}
+
+h1 {
+    width:100%;
+    text-align: center;
+    font-size:20px;
+    color:#fff;
+}
+
+.back{
+    position: absolute;
+    top:12px;
+    left:0;
+    width:20px;
+    height:20px;
+}
+
+
+.back i,.back b{
+    position: absolute;
+    left:0;
+    width:0;
+    height:0;
+    border-width:10px;
+    border-style:dashed solid dashed dashed ;
+    border-color:transparent #fff transparent transparent ;
+}
+.back b{
+    border-color:transparent #ff5359 transparent transparent ;
+    left:2px;
+}

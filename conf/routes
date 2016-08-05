@@ -1,0 +1,37 @@
+# Routes
+# This file defines all application routes (Higher priority routes first)
+# ~~~~
+
+# Home page
+
+
+GET         /client/pay/order/get/$orderId<[0-9]+>                                        controllers.JDPay.cashDesk(orderId:Long,paySrc:String ?= "APP")
+GET         /client/pay/order/get/$orderId<[0-9]+>/$paySrc<[a-zA-Z]+>                     controllers.JDPay.cashDesk(orderId:Long,paySrc:String)
+POST        /client/pay/jd/back                                                           controllers.JDPay.payBackendNotify()
+POST        /client/pay/jd/front                                                          controllers.JDPay.payFrontNotify()
+
+
+GET         /assets/*file                                                                 controllers.Assets.versioned(path="/public", file: Asset)
+POST        /client/redirect/cash                                                         controllers.JDPay.redirectCash()
+
+
+#微信
+POST        /client/weixin/pay/unifiedorder/redirect                                      controllers.WeiXinCtrl.redirectPayUnifiedorder()
+GET         /client/weixin/pay/unifiedorder/$tradeType<[a-zA-Z]+>/$orderId<[0-9]+>        controllers.WeiXinCtrl.payUnifiedorder(tradeType:String,orderId:Long)
+POST        /client/weixin/pay/back                                                       controllers.WeiXinCtrl.payBackendNotify()
+GET         /client/weixin/pay/getQRCode/$qrCodeUrl<[a-zA-Z0-9]+>                         controllers.WeiXinCtrl.getQRCode(qrCodeUrl:String)
+POST        /client/weixin/pay/orderquery/redirect                                        controllers.WeiXinCtrl.redirectPayOrderquery()
+GET         /client/weixin/pay/orderquery/$tradeType<[a-zA-Z]+>/$orderId<[0-9]+>          controllers.WeiXinCtrl.payOrderquery(tradeType:String,orderId:Long)
+POST        /client/weixin/pay/jsapi                                                      controllers.WeiXinCtrl.payJsApi()
+GET         /client/weixin/pay/socket/$orderId<[0-9]+>                                    controllers.WeiXinCtrl.weixinsocket(orderId:String)
+POST        /client/weixin/pay/app                                                        controllers.WeiXinCtrl.payApp()
+
+#支付宝
+POST        /client/alipay/pay/back                                                       controllers.AlipayCtrl.payBackNotify()
+GET         /client/alipay/pay/front                                                      controllers.AlipayCtrl.payFrontNotify()
+POST        /client/alipay/pay/refund                                                     controllers.AlipayCtrl.payRefundNotify()
+POST        /client/alipay/pay/app                                                        controllers.AlipayCtrl.payApp()
+POST        /client/alipay/pay/orderquery/redirect                                        controllers.AlipayCtrl.redirectPayOrderquery()
+GET         /client/alipay/pay/orderquery/$orderId<[0-9]+>                                controllers.AlipayCtrl.payOrderquery(orderId:Long)
+
+#GET         /client/alipay/test                                                          controllers.AlipayCtrl.payRefundNotify()

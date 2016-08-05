@@ -1,0 +1,38 @@
+@(params: java.util.Map[String, String])
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>失败</title>
+        <meta content="initial-scale=1.0,user-scalable=no,maximum-scale=1,width=device-width" name="viewport">
+        <link rel="stylesheet" href="/assets/stylesheets/payresult.css">
+        <link rel="shortcut icon" type="image/png" href="/assets/images/favicon.ico">
+        <script src="/assets/js/jquery-1.11.1.min.js"></script>
+    </head>
+    <body>
+        <div class="pay">
+            <div class="pay-succ">
+                <img src="/assets/images/shibai.png" alt="">
+            </div>
+            <p class="failP">注&nbsp;:&nbsp;如此笔订单扣款成功,我们将会在1-5个工作日返回您的支付金额至您的支付账户里,请以支付公司的通知信息为准,如有疑问请联系我们客服400-664-0808</p>
+            <div class="succbtn">
+                <a id="home" href="javascript:void(0)" class="returnhome">返回首页</a>
+            </div>
+        </div>
+    </body>
+    <script>
+            $(function () {
+                $(document).on("click", "#home", function () {
+                    try {
+                        openHome();
+                    } catch (err) {
+                        window.handler.openHome();
+                    } finally {
+                        setTimeout(function () {
+                            window.location = "@params.get("""m_index""")";
+                        }, 500);
+                    }
+                });
+            });
+    </script>
+</html>

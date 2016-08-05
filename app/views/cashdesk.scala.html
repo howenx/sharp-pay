@@ -1,0 +1,190 @@
+@(params:java.util.Map[String,String],paySrc:String,userType:String,token:String,securityCode:String,alipayParamUrl:String,payShowMap:java.util.Map[String,Boolean])
+
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+        <meta name="format-detection" content="telephone=no">
+        <link rel="shortcut icon" type="image/png" href="/assets/images/favicon.ico">
+        <link rel="stylesheet" href="/assets/stylesheets/pay.css">
+        <script src="/assets/js/jquery-1.11.1.min.js"></script>
+        <script src="/assets/js/pay.js"></script>
+        <script>
+
+           $(function () {
+               // var orderId='@params.get("""out_trade_no""")';
+                var wsUri = "@routes.WeiXinCtrl.weixinsocket(params.get("""out_trade_no""")).webSocketURL()";
+               // var wsUri="ws://"
+                var WS = window['MozWebSocket'] ? MozWebSocket : WebSocket;
+                var dateSocket = new WS(wsUri);
+                dateSocket.onmessage = function (event) {
+                    if(event.data=="SUCCESS"){
+                         payOrderquery("NATIVE",'@params.get("""out_trade_no""")','@token','@securityCode');
+                    }
+                }
+           });
+
+        </script>
+    </head>
+    <body>
+        @if("M"==paySrc){
+            <header class="head">
+                <a href="@params.get("""m_orders""")" class="back">
+                    <i></i>
+                    <b></b>
+                </a>
+                <h1>订单</h1>
+            </header>
+        <div class="pay-change-padding"></div>
+
+        }
+        <div class="pay-change">
+            <span>请选择支付方式</span>
+            <em>@params.get("all_fee")元</em>
+        </div>
+        @if(true==payShowMap.get("""JD""")){
+            <hr>
+            <div class="jingdong pay">
+                <span>京东支付</span>
+                <em>京东旗下 安全极速支付</em>
+
+                <div class="right-icon"></div>
+            </div>
+        }
+       <!--APP支付菜单-->
+        @if("M"!=paySrc){
+            @if(true==payShowMap.get("""WEIXIN""")){
+                <hr>
+                <div class="weixin pay"   onclick="payUnifiedorderApp('APP',@params.get("""out_trade_no"""),@params.get("""orderCreateAt""")/1,'@token','@securityCode')" >
+                    <span>微信支付</span>
+                    <em>仅安装微信6.0.2及以上版本客户端使用</em>
+                    <div class="right-icon"></div>
+                </div>
+            }
+            @if(true==payShowMap.get("""ALIPAY""")){
+                <hr>
+                <div class="alipay pay" onclick="alipayApp('APP',@params.get("""out_trade_no"""),@params.get("""orderCreateAt""")/1,'@token','@securityCode')">
+                    <span>支付宝支付</span>
+                    <em>推荐支付宝用户使用</em>
+                    <div class="right-icon"></div>
+                </div>
+            }
+        }
+
+        <!--M端支付菜单--->
+        @if("M"==paySrc){
+            @if(true==payShowMap.get("""WEIXIN""")){
+                @if("WEIXIN"==userType){
+                    <hr>
+                    <div class="weixin pay" onclick="payUnifiedorder('JSAPI',@params.get("""out_trade_no"""),@params.get("""orderCreateAt""")/1,'@token','@securityCode')" >
+                        <span>微信支付</span>
+                        <em>仅安装微信6.0.2及以上版本客户端使用</em>
+                        <div class="right-icon"></div>
+                    </div>
+                 }
+                <hr>
+                <div class="weixin pay" onclick="payUnifiedorder('NATIVE',@params.get("""out_trade_no"""),@params.get("""orderCreateAt""")/1,'@token','@securityCode')">
+                    <span>微信扫码支付</span>
+                    <em>仅安装微信6.0.2及以上版本客户端使用</em>
+                    <div class="right-icon"></div>
+                </div>
+
+                <div id="codeImageDiv" class="e-box" style="display:none">
+                    <div class="pos clearfix">
+                        <img src="" id="codeImageUrl">
+                        <input type="hidden" id="codeImgHidden" value="0">
+                        <a href="javascript:;" class="succeed" id="cancelPaySpan">取消扫码</a>
+                        <a href="javascript:;" class="examine" onclick="payOrderquery('NATIVE',@params.get("""out_trade_no"""),'@token','@securityCode')" style="display:none">查看订单</a>
+                    </div>
+                </div>
+            }
+
+            @if("WEIXIN"!=userType){
+                @if(true==payShowMap.get("""ALIPAY""")){
+                    <hr>
+                    <a href="https://mapi.alipay.com/gateway.do?@alipayParamUrl" onclick="checkOrder();return false;" style='text-decoration:none;'>
+                        <div class="alipay pay">
+                            <span>支付宝即时到账</span>
+                            <em>推荐支付宝用户使用</em>
+                            <div class="right-icon"></div>
+                        </div>
+                    </a>
+                }
+            }
+
+        }
+
+        <div style="display:none">
+            <form id="jdsubmit" name="jdsubmit" action="@params.get("""url""")" method="POST">
+            @for((k,v) <- params) {
+                <input type="hidden" name="@k" value="@v"/>
+            }
+            </form>
+            <script>
+    	$(function(){
+            $('.jingdong').click(function(){
+                @*/***毫秒数**/*@
+                var createAt = @params.get("""orderCreateAt""")/1;
+                var d = new Date();
+                var n = d.getTime();
+                if(n-createAt>=86400000){
+                    alert("您的订单已经超时自动取消");
+                }else{
+                    $("#codeImgHidden").val(0);
+                    $('#jdsubmit').submit();
+                }
+            });
+        })
+
+
+
+    //微信APP统一下单
+    function payUnifiedorderApp(tradeType,orderId,orderCreateAt,token,securityCode){
+        var d = new Date();
+        var n = d.getTime();
+        if(n-orderCreateAt>=86400000){
+            alert("您的订单已经超时自动取消");
+            return ;
+        }
+        var weixinAppForm = $('<form action="/client/weixin/pay/app" method="post">' +
+                            <!--'<input type="hidden" name="prepayid" value="'+data.prepay_id+'"/>' +-->
+                            '<input type="hidden" name="tradeType" value="'+tradeType+'"/>' +
+                            '<input type="hidden" name="orderId" value="'+orderId+'"/>' +
+                            '<input type="hidden" name="token" value="'+token+'"/>' +
+                            '<input type="hidden" name="securityCode" value="'+securityCode+'"/>' +
+                            '</form>');
+         weixinAppForm.submit();
+    };
+
+    function checkOrder(){
+         var d = new Date();
+         var n = d.getTime();
+        if(n-orderCreateAt>=86400000){
+            alert("您的订单已经超时自动取消");
+            return ;
+        }
+    };
+
+    //支付宝APP跳转
+    function alipayApp(tradeType,orderId,orderCreateAt,token,securityCode){
+        var d = new Date();
+        var n = d.getTime();
+        if(n-orderCreateAt>=86400000){
+            alert("您的订单已经超时自动取消");
+            return ;
+        }
+        var alipayAppForm = $('<form action="/client/alipay/pay/app" method="post">' +
+                            '<input type="hidden" name="tradeType" value="'+tradeType+'"/>' +
+                            '<input type="hidden" name="orderId" value="'+orderId+'"/>' +
+                            '<input type="hidden" name="token" value="'+token+'"/>' +
+                            '<input type="hidden" name="securityCode" value="'+securityCode+'"/>' +
+                            '</form>');
+         alipayAppForm.submit();
+    };
+    </script>
+        </div>
+
+    </body>
+</html>

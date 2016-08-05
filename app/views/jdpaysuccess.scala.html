@@ -1,0 +1,56 @@
+@(params: java.util.Map[String, String])
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>支付成功</title>
+        <meta content="initial-scale=1.0,user-scalable=no,maximum-scale=1,width=device-width" name="viewport">
+        <link rel="stylesheet" href="/assets/stylesheets/payresult.css">
+        <link rel="shortcut icon" type="image/png" href="/assets/images/favicon.ico">
+        <script src="/assets/js/jquery-1.11.1.min.js"></script>
+    </head>
+    <body onload="window.handler.clearHistory('')">
+        <div class="pay">
+            <div class="pay-succ">
+                <img src="/assets/images/chenggong.png" alt="">
+                <div class="ordermoney">
+                    @if(null!=params.get("all_fee")){
+                        <span>订单金额: </span><i>@params.get("all_fee")</i>
+                    }
+                </div>
+            </div>
+            <div class="succbtn">
+                <a id="order" href="javascript:void(0)" class="checkorder">查看订单</a>
+                <a id="home" href="javascript:void(0)" class="returnhome">返回首页</a>
+            </div>
+        </div>
+    </body>
+
+    <script>
+            $(function () {
+                $(document).on("click", "#order", function () {
+                    try {
+                        openOrder();
+                    } catch(err) {
+                        window.handler.openOrder();
+                    }finally {
+                        setTimeout(function () {
+                            window.location = "@params.get("""m_orders""")";
+                        }, 500);
+                    }
+                });
+
+                $(document).on("click", "#home", function () {
+                    try {
+                        openHome();
+                    } catch(err) {
+                        window.handler.openHome();
+                    }finally {
+                        setTimeout(function () {
+                            window.location = "@params.get("""m_index""")";
+                        }, 500);
+                    }
+                });
+            });
+    </script>
+</html>

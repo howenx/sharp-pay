@@ -1,0 +1,1213 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="mapper.ShoppingCartMapper">
+
+    <!--enable mybatis default cache configure reference:
+        https://mybatis.github.io/mybatis-3/zh/sqlmap-xml.html#cache
+    -->
+    <!--<cache/>-->
+
+    <sql id="shoppingCartColumns">
+        ${alias}.cart_id
+        ,${alias}.user_id
+        ,${alias}.sku_id
+        ,${alias}.item_id
+        ,${alias}.amount
+        ,${alias}.price
+        ,${alias}.create_at
+        ,${alias}.destroy_at
+        ,${alias}.update_at
+        ,${alias}.order_id
+        ,${alias}.status
+        ,${alias}.sku_type
+        ,${alias}.sku_type_id
+    </sql>
+
+    <sql id="orderColumns">
+        ${alias}.order_id             ,
+        ${alias}.user_id              ,
+        ${alias}.pay_total            ,
+        ${alias}.pay_method           ,
+        to_char(${alias}.order_create_at, 'YYYY-MM-DD HH24:MI:SS') order_create_at,
+        ${alias}.order_ip             ,
+        ${alias}.pg_trade_no          ,
+        ${alias}.order_status         ,
+        ${alias}.error_str            ,
+        ${alias}.discount             ,
+        ${alias}.updated_at           ,
+        ${alias}.order_desc           ,
+        ${alias}.ship_fee             ,
+        ${alias}.total_fee            ,
+        ${alias}.postal_fee           ,
+        to_char(${alias}.confirm_receive_at, 'YYYY-MM-DD HH24:MI:SS') confirm_receive_at,
+        ${alias}.pin_active_id         ,
+        ${alias}.order_type            ,
+        ${alias}.pay_method_sub,
+        ${alias}.or_del
+    </sql>
+
+    <!---  获取用户购物车,以用户ID或者CartID    -->
+
+    <select id="getCartByID" resultType="domain.Cart" parameterType="domain.Cart">
+        select
+        <include refid="shoppingCartColumns">
+            <property name="alias" value="t"/>
+        </include>
+        from sp_cart t
+        where 1=1
+        <if test="cartId!=null and cartId !=''">
+            and t.cart_id = #{cartId}
+        </if>
+        <if test="userId!=null and userId !=''">
+            and t.user_id = #{userId}
+        </if>
+        <if test="orderId!=null and orderId !=''">
+            and t.status in ('O')
+            and t.order_id = #{orderId}
+        </if>
+        <if test="orderId==null or orderId ==''">
+            and t.status in ('I','S','G')
+        </if>
+        ORDER BY t.create_at DESC,t.sku_id
+    </select>
+
+
+    <select id="getCartByUserSku" resultType="domain.Cart" parameterType="domain.Cart">
+        select
+        <include refid="shoppingCartColumns">
+            <property name="alias" value="t"/>
+        </include>
+        from sp_cart t
+        where 1=1 and t.status in ('I','G')
+        <if test="cartId!=null and cartId !=''">
+            and t.cart_id = #{cartId}
+        </if>
+        <if test="userId!=null and userId !=''">
+            and t.user_id = #{userId}
+        </if>
+        <if test="skuId!=null and skuId !=''">
+            and t.sku_id = #{skuId}
+        </if>
+        <if test="itemId!=null and itemId !=''">
+            and t.item_id = #{itemId}
+        </if>
+        <if test="skuType!=null and skuType !=''">
+            and t.sku_type = #{skuType}
+        </if>
+        <if test="skuTypeId!=null and skuTypeId !=''">
+            and t.sku_type_id = #{skuTypeId}
+        </if>
+        ORDER BY t.create_at DESC,t.sku_id
+    </select>
+
+    <!-- 更新价格,状态,数量,删除 -->
+    <update id="updateCart" parameterType="domain.Cart">
+        update sp_cart set update_at= CURRENT_TIMESTAMP(0)
+        <if test="userId != null and userId!=''">
+            ,user_id=#{userId}
+        </if>
+        <if test="skuId != null and skuId!=''">
+            ,sku_id=#{skuId}
+        </if>
+        <if test="itemId != null and itemId!=''">
+            ,item_id=#{itemId}
+        </if>
+        <if test="amount != null and amount!=''">
+            ,amount=#{amount}
+        </if>
+        <if test="price != null and price!=''">
+            ,price=#{price}
+        </if>
+        <if test="destroyAt != null and destroyAt!=''">
+            ,destroy_at=CURRENT_TIMESTAMP(0)
+        </if>
+        <if test="orderId != null and orderId!=''">
+            ,order_id=#{orderId}
+        </if>
+        <if test="status != null and status!=''">
+            ,status=#{status}
+        </if>
+        <if test="skuTitle != null and skuTitle!=''">
+            ,sku_title=#{skuTitle}
+        </if>
+        <if test="skuType!=null and skuType !=''">
+            ,sku_type = #{skuType}
+        </if>
+        <if test="skuTypeId!=null and skuTypeId !=''">
+            ,sku_type_id = #{skuTypeId}
+        </if>
+        where 1=1
+        <if test="cartId!=null and cartId !=''">
+            and cart_id = #{cartId}
+        </if>
+        <if test="userId!=null and userId !=''">
+            and user_id = #{userId}
+        </if>
+        <if test="status!=null and status !=''">
+            and status in ('I','G')
+        </if>
+        <if test="skuType!=null and skuType !=''">
+            and sku_type = #{skuType}
+        </if>
+        <if test="skuTypeId!=null and skuTypeId !=''">
+            and sku_type_id = #{skuTypeId}
+        </if>
+    </update>
+
+    <update id="UpdateCartBy" parameterType="domain.Cart">
+        update sp_cart set update_at= CURRENT_TIMESTAMP(0)
+        <if test="userId != null and userId!=''">
+            ,user_id=#{userId}
+        </if>
+        <if test="skuId != null and skuId!=''">
+            ,sku_id=#{skuId}
+        </if>
+        <if test="itemId != null and itemId!=''">
+            ,item_id=#{itemId}
+        </if>
+        <if test="amount != null and amount!=''">
+            ,amount=#{amount}
+        </if>
+        <if test="price != null and price!=''">
+            ,price=#{price}
+        </if>
+        <if test="destroyAt != null and destroyAt!=''">
+            ,destroy_at=CURRENT_TIMESTAMP(0)
+        </if>
+        <if test="orderId != null and orderId!=''">
+            ,order_id=#{orderId}
+        </if>
+        <if test="status != null and status!=''">
+            ,status=#{status}
+        </if>
+        <if test="skuTitle != null and skuTitle!=''">
+            ,sku_title=#{skuTitle}
+        </if>
+        <if test="skuType!=null and skuType !=''">
+            ,sku_type = #{skuType}
+        </if>
+        <if test="skuTypeId!=null and skuTypeId !=''">
+            ,sku_type_id = #{skuTypeId}
+        </if>
+        where 1=1
+        <if test="cartId!=null and cartId !=''">
+            and cart_id = #{cartId}
+        </if>
+        <if test="userId!=null and userId !=''">
+            and user_id = #{userId}
+        </if>
+        <if test="skuType!=null and skuType !=''">
+            and sku_type = #{skuType}
+        </if>
+        <if test="skuTypeId!=null and skuTypeId !=''">
+            and sku_type_id = #{skuTypeId}
+        </if>
+    </update>
+
+    <insert id="addCart" parameterType="domain.Cart" useGeneratedKeys="true" keyProperty="cartId">
+        insert into sp_cart (user_id
+        ,sku_id
+        ,item_id
+        ,amount
+        <if test="skuType!=null and skuType !=''">
+            ,sku_type
+        </if>
+        <if test="skuTypeId!=null and skuTypeId !=''">
+            ,sku_type_id
+        </if>
+        ,price
+        ,status
+        ,sku_title
+        ,sku_img
+        ,create_at)
+        values(
+        #{userId},
+        #{skuId},
+        #{itemId},
+        #{amount},
+        <if test="skuType!=null and skuType !=''">
+            #{skuType},
+        </if>
+        <if test="skuTypeId!=null and skuTypeId !=''">
+            #{skuTypeId},
+        </if>
+        <if test="price != null and price!=''">
+            #{price},
+        </if>
+        <if test="price == null or price==''">
+            default,
+        </if>
+        <if test="status != null and status!=''">
+            #{status},
+        </if>
+        <if test="status == null or status==''">
+            default,
+        </if>
+        <if test="skuTitle != null and skuTitle!=''">
+            #{skuTitle},
+        </if>
+        <if test="skuTitle == null or skuTitle==''">
+            default,
+        </if>
+        <if test="skuImg != null and skuImg!=''">
+            #{skuImg},
+        </if>
+        <if test="skuImg == null or skuImg==''">
+            default,
+        </if>
+        CURRENT_TIMESTAMP(0)
+        )
+    </insert>
+
+    <!--查询用户订单-->
+    <select id="getOrderBy" parameterType="domain.Order" resultType="domain.Order">
+        select
+        <include refid="orderColumns">
+            <property name="alias" value="t"/>
+        </include>
+        from sp_order t
+        where 1=1
+        <if test="userId!=null and userId !=''">
+            and t.user_id = #{userId}
+        </if>
+        <if test="orderId!=null and orderId !=''">
+            and t.order_id = #{orderId}
+        </if>
+        <if test="pgTradeNo!=null and pgTradeNo !=''">
+            and t.pg_trade_no = #{pgTradeNo}
+        </if>
+        and order_status !='N' and order_status !='PI' and order_status !='PS' and order_status !='PF'
+        order by t.order_create_at DESC
+    </select>
+
+    <select id="getOrder" parameterType="domain.Order" resultType="domain.Order">
+        select
+        <include refid="orderColumns">
+            <property name="alias" value="t"/>
+        </include>
+        from sp_order t
+        where 1=1
+        <if test="userId!=null and userId !=''">
+            and t.user_id = #{userId}
+        </if>
+        <if test="orderId!=null and orderId !=''">
+            and t.order_id = #{orderId}
+        </if>
+        <if test="pgTradeNo!=null and pgTradeNo !=''">
+            and t.pg_trade_no = #{pgTradeNo}
+        </if>
+        and or_del =false
+        order by t.order_create_at DESC
+    </select>
+
+    <select id="getPinOrder" parameterType="domain.Order" resultType="domain.Order">
+        select
+        <include refid="orderColumns">
+            <property name="alias" value="t"/>
+        </include>
+        from sp_order t
+        where 1=1
+        <if test="userId!=null and userId !=''">
+            and t.user_id = #{userId}
+        </if>
+        <if test="orderId!=null and orderId !=''">
+            and t.order_id = #{orderId}
+        </if>
+        <if test="pinActiveId!=null and pinActiveId !=''">
+            and t.pin_active_id = #{pinActiveId}
+        </if>
+        <if test="pgTradeNo!=null and pgTradeNo !=''">
+            and t.pg_trade_no = #{pgTradeNo}
+        </if>
+        and order_status ='PS'
+        order by t.order_create_at DESC
+    </select>
+
+    <select id="getPinUserOrder" parameterType="domain.Order" resultType="domain.Order">
+        select
+        <include refid="orderColumns">
+            <property name="alias" value="t"/>
+        </include>
+        from sp_order t
+        where 1=1
+        <if test="userId!=null and userId !=''">
+            and t.user_id = #{userId}
+        </if>
+        <if test="orderId!=null and orderId !=''">
+            and t.order_id = #{orderId}
+        </if>
+        <if test="pinActiveId!=null and pinActiveId !=''">
+            and t.pin_active_id = #{pinActiveId}
+        </if>
+        <if test="orderType!=null and orderType !=''">
+            and t.order_type = #{orderType}
+        </if>
+        and order_status in ('PS','S')
+        order by t.order_create_at DESC
+    </select>
+
+    <update id="updateOrder" parameterType="domain.Order">
+        update sp_order set
+        <if test="orderStatus!=null and orderStatus!=''">
+            order_status = #{orderStatus},
+        </if>
+        <if test="confirmReceiveAt!=null and confirmReceiveAt!=''">
+            confirm_receive_at=CURRENT_TIMESTAMP(0),
+        </if>
+        <if test="pgTradeNo!=null and pgTradeNo!=''">
+            pg_trade_no=#{pgTradeNo},
+        </if>
+        <if test="errorStr!=null and errorStr!=''">
+            error_str=#{errorStr},
+        </if>
+        <if test="pinActiveId!=null and pinActiveId !=''">
+            pin_active_id = #{pinActiveId},
+        </if>
+        <if test="payMethod!=null and payMethod !=''">
+            pay_method = #{payMethod},
+        </if>
+        <if test="payMethodSub!=null and payMethodSub !=''">
+            pay_method_sub = #{payMethodSub},
+        </if>
+        <if test="orDel!=null and orDel !=''">
+            or_del = #{orDel},
+        </if>
+
+        updated_at = CURRENT_TIMESTAMP(0)
+        where 1=1
+        <if test="userId!=null and userId !=''">
+            and user_id = #{userId}
+        </if>
+        <if test="orderId!=null and orderId !=''">
+            and order_id = #{orderId}
+        </if>
+    </update>
+
+    <insert id="insertOrder" parameterType="domain.Order" useGeneratedKeys="true" keyProperty="orderId">
+        insert into sp_order (
+        user_id ,
+        pay_total ,
+        pay_method ,
+        order_create_at ,
+        order_ip ,
+        <if test="shipTime!=null and shipTime!=''">
+            ship_time ,
+        </if>
+        <if test="clientType!=null and clientType!=''">
+            client_type ,
+        </if>
+        <if test="discount!=null and discount!=''">
+            discount ,
+        </if>
+        order_desc ,
+        ship_fee ,
+        postal_fee ,
+        <if test="orderStatus!=null and orderStatus!=''">
+            order_status ,
+        </if>
+        total_fee,
+        order_type
+        <if test="pinActiveId!=null and pinActiveId!=''">
+            ,pin_active_id
+        </if>
+        )values(
+        #{userId},
+        #{payTotal} ,
+        #{payMethod} ,
+        CURRENT_TIMESTAMP(0) ,
+        #{orderIp}::cidr ,
+        <if test="shipTime!=null and shipTime!=''">
+            #{shipTime} ,
+        </if>
+        <if test="clientType!=null and clientType!=''">
+            #{clientType} ,
+        </if>
+        <if test="discount!=null and discount!=''">
+            #{discount} ,
+        </if>
+        #{orderDesc} ,
+        #{shipFee} ,
+        #{postalFee},
+        <if test="orderStatus!=null and orderStatus!=''">
+            #{orderStatus} ,
+        </if>
+        #{totalFee},
+        #{orderType}
+        <if test="pinActiveId!=null and pinActiveId!=''">
+            ,#{pinActiveId}
+        </if>
+        )
+    </insert>
+
+    <!---优惠券-->
+    <sql id="couponColumns">
+        ${alias}.coup_id        ,
+        ${alias}.user_id        ,
+        ${alias}.cate_id        ,
+        ${alias}.denomination   ,
+        to_char(${alias}.start_at, 'YYYY-MM-DD HH24:MI:SS') start_at,
+        to_char(${alias}.end_at, 'YYYY-MM-DD HH24:MI:SS') end_at,
+        ${alias}.state          ,
+        ${alias}.order_id       ,
+        to_char(${alias}.use_at, 'YYYY-MM-DD HH24:MI:SS') use_at         ,
+        ${alias}.limit_quota,
+        ${alias}.cate_nm
+    </sql>
+    <select id="getUserCoupon" parameterType="domain.CouponVo" resultType="domain.CouponVo">
+        select
+        <include refid="couponColumns">
+            <property name="alias" value="t"/>
+        </include>
+        from sp_coupons t where 1=1
+        <if test="userId!=null and userId!=''">
+            and user_id = #{userId}
+        </if>
+        <if test="coupId!=null and coupId!=''">
+            and coup_id = #{coupId}
+        </if>
+        <if test="cateId!=null and cateId!=''">
+            and cate_id = #{cateId}
+        </if>
+        <if test="orderId!=null and orderId!=''">
+            and order_id = #{orderId}
+        </if>
+        <if test="state!=null and state!=''">
+            and state = #{state}
+        </if>
+        <if test="state==null or state==''">
+            and state in ('Y','N','S')
+        </if>
+        <if test="limitQuota!=null and limitQuota!=''">
+            and limit_quota = #{limitQuota}
+        </if>
+        and start_at &lt;=CURRENT_TIMESTAMP(0) and end_at &gt;=CURRENT_TIMESTAMP(0)
+    </select>
+
+    <select id="getUserCouponAll" parameterType="domain.CouponVo" resultType="domain.CouponVo">
+        select
+        <include refid="couponColumns">
+            <property name="alias" value="t"/>
+        </include>
+        from sp_coupons t where 1=1
+        <if test="userId!=null and userId!=''">
+            and user_id = #{userId}
+        </if>
+        <if test="coupId!=null and coupId!=''">
+            and coup_id = #{coupId}
+        </if>
+        <if test="cateId!=null and cateId!=''">
+            and cate_id = #{cateId}
+        </if>
+        <if test="state!=null and state!=''">
+            and state = #{state}
+        </if>
+        <if test="state==null or state==''">
+            and state in ('Y','N','S')
+        </if>
+        <if test="limitQuota!=null and limitQuota!=''">
+            and limit_quota = #{limitQuota}
+        </if>
+    </select>
+
+    <insert id="insertCoupon" parameterType="domain.CouponVo">
+        insert into sp_coupons (coup_id,
+            user_id,
+            cate_id,
+            denomination,
+            start_at,
+            end_at,
+            state,
+            limit_quota,
+            cate_nm
+        ) values(
+            #{coupId},
+            #{userId},
+            #{cateId},
+            #{denomination},
+        to_timestamp(#{startAt},'YYYY-MM-DD HH24:MI:SS'),
+        to_timestamp(#{endAt},'YYYY-MM-DD HH24:MI:SS'),
+            #{state},
+            #{limitQuota},
+            #{cateNm}
+        )
+    </insert>
+
+    <update id="updateCoupon" parameterType="domain.CouponVo">
+        update sp_coupons set coup_id = coup_id
+        <if test="userId!=null and userId!=''">
+            ,user_id = #{userId}
+        </if>
+        <if test="cateId!=null and cateId!=''">
+            ,cate_id = #{cateId}
+        </if>
+        <if test="denomination!=null and denomination!=''">
+            ,denomination = #{denomination}
+        </if>
+        <if test="startAt!=null and startAt!=''">
+            ,start_at = #{startAt}
+        </if>
+        <if test="endAt!=null and endAt!=''">
+            ,end_at = #{endAt}
+        </if>
+        <if test="state!=null and state!=''">
+            ,state =#{state}
+        </if>
+        <if test="useAt!=null and useAt!=''">
+            ,use_at=CURRENT_TIMESTAMP(0)
+        </if>
+        <if test="orderId!=null and orderId!=''">
+            ,order_id = #{orderId}
+        </if>
+        where 1= 1
+        <if test="coupId!=null and coupId !=''">
+            and coup_id = #{coupId}
+        </if>
+        <if test="userId!=null and userId!=''">
+            and user_id =#{userId}
+        </if>
+        <if test="cateId!=null and cateId!=''">
+            and cate_id =#{cateId}
+        </if>
+    </update>
+
+    <update id="updateCouponInvalid" parameterType="domain.CouponVo">
+        update sp_coupons set coup_id = coup_id ,state ='S'
+        <if test="userId!=null and userId!=''">
+            ,user_id = #{userId}
+        </if>
+        <if test="cateId!=null and cateId!=''">
+            ,cate_id = #{cateId}
+        </if>
+        <if test="denomination!=null and denomination!=''">
+            ,denomination = #{denomination}
+        </if>
+        <if test="startAt!=null and startAt!=''">
+            ,start_at = #{startAt}
+        </if>
+        <if test="endAt!=null and endAt!=''">
+            ,end_at = #{endAt}
+        </if>
+        <if test="useAt!=null and useAt!=''">
+            ,use_at=#{useAt}
+        </if>
+        where 1= 1
+        <if test="coupId!=null and coupId !=''">
+            and coup_id = #{coupId}
+        </if>
+        <if test="userId!=null and userId!=''">
+            and user_id =#{userId}
+        </if>
+        <if test="state!=null and state!=''">
+            and state = #{state}
+        </if>
+        <if test="cateId!=null and cateId!=''">
+            and cate_id =#{cateId}
+        </if>
+        and end_at &lt;=CURRENT_TIMESTAMP(0)
+    </update>
+
+    <delete id="deleteCouponF" parameterType="domain.CouponVo">
+        delete sp_coupons where 1=1
+        <if test="coupId!=null and coupId !=''">
+            and coup_id = #{coupId}
+        </if>
+        <if test="userId!=null and userId!=''">
+            and user_id =#{userId}
+        </if>
+        <if test="state!=null and state!=''">
+            and state = #{state}
+        </if>
+    </delete>
+
+    <!--子订单表-->
+    <insert id="insertOrderSplit" parameterType="domain.OrderSplit" useGeneratedKeys="true" keyProperty="splitId">
+        insert into order_split(
+        order_id              ,
+        cbe_code              ,
+        cbe_area              ,
+        total_fee             ,
+        total_pay_fee         ,
+        total_amount          ,
+        ship_fee              ,
+        postal_fee
+        )
+        values(#{orderId},#{cbeCode},#{cbeArea},#{totalFee},#{totalPayFee},#{totalAmount},#{shipFee},#{postalFee})
+    </insert>
+    <update id="updateOrderSplit" parameterType="domain.OrderSplit">
+        update order_split set
+        <if test="orderId!=null and orderId!=''">
+            order_id = #{orderId},
+        </if>
+        <if test="state!=null and state!=''">
+            state = #{state},
+        </if>
+        <if test="cbeCode!=null and cbeCode!=''">
+            cbe_code = #{cbeCode},
+        </if>
+        <if test="inspReturnCode!=null and inspReturnCode!=''">
+            insp_return_code = #{inspReturnCode},
+        </if>
+        <if test="inspReturnMsg!=null and inspReturnMsg!=''">
+            insp_return_msg = #{inspReturnMsg},
+        </if>
+        <if test="customsReturnCode!=null and customsReturnCode!=''">
+            customs_return_code=#{customsReturnCode},
+        </if>
+        <if test="customsReturnMsg!=null and customsReturnMsg!=''">
+            customs_return_msg = #{customsReturnMsg},
+        </if>
+        <if test="totalFee!=null and totalFee!=''">
+            total_fee = #{totalFee},
+        </if>
+        <if test="totalPayFee!=null and totalPayFee!=''">
+            total_pay_fee=#{totalPayFee},
+        </if>
+        <if test="totalAmount!=null and totalAmount!=''">
+            total_amount = #{totalAmount},
+        </if>
+        <if test="shipFee!=null and shipFee!=''">
+            ship_fee = #{shipFee},
+        </if>
+        <if test="postalFee!=null and postalFee!=''">
+            postal_fee = #{postalFee},
+        </if>
+        <if test="expressNum!=null and expressNum!=''">
+            express_num = #{expressNum},
+        </if>
+        <if test="expressCode!=null and expressCode!=''">
+            express_code = #{expressCode},
+        </if>
+        <if test="expressNm!=null and expressNm!=''">
+            express_nm = #{expressNm},
+        </if>
+        split_id = split_id where 1=1
+        <if test="splitId!=null and splitId!=''">
+            and split_id = #{splitId}
+        </if>
+        <if test="orderId!=null and orderId!=''">
+            and order_id = #{orderId}
+        </if>
+        <if test="state!=null and state!=''">
+            and state = #{state}
+        </if>
+        <if test="payInspReturnCode!=null and payInspReturnCode!=''">
+            and pay_insp_return_code = #{payInspReturnCode}
+        </if>
+        <if test="payResponseMsg!=null and payResponseMsg!=''">
+            and pay_insp_return_msg = #{payResponseMsg}
+        </if>
+        <if test="payCustomsReturnCode!=null and payCustomsReturnCode!=''">
+            and pay_customs_return_code = #{payCustomsReturnCode}
+        </if>
+        <if test="payCustomsReturnMsg!=null and payCustomsReturnMsg!=''">
+            and pay_customs_return_msg = #{payCustomsReturnMsg}
+        </if>
+        <if test="subPgTradeNo!=null and subPgTradeNo!=''">
+            and sub_pg_trade_no = #{subPgTradeNo}
+        </if>
+        <if test="payResponseCode!=null and payResponseCode!=''">
+            and pay_response_code = #{payResponseCode}
+        </if>
+        <if test="payResponseMsg!=null and payResponseMsg!=''">
+            and pay_response_msg = #{payResponseMsg}
+        </if>
+    </update>
+
+    <select id="selectOrderSplit" parameterType="domain.OrderSplit" resultType="domain.OrderSplit">
+        select split_id ,
+        order_id ,
+        state ,
+        cbe_code ,
+        insp_return_code ,
+        insp_return_msg ,
+        customs_return_code ,
+        customs_return_msg ,
+        total_fee ,
+        total_pay_fee ,
+        total_amount ,
+        ship_fee ,
+        postal_fee ,
+        express_num ,
+        express_code ,
+        express_nm,
+        pay_insp_return_code,
+        pay_insp_return_msg,
+        pay_customs_return_code,
+        pay_customs_return_msg,
+        sub_pg_trade_no,
+        pay_response_code,
+        pay_response_msg
+        from order_split where 1=1
+        <if test="splitId!=null and splitId!=''">
+            and split_id = #{splitId}
+        </if>
+        <if test="orderId!=null and orderId!=''">
+            and order_id = #{orderId}
+        </if>
+        <if test="state!=null and state!=''">
+            and state = #{state}
+        </if>
+    </select>
+
+    <!--订单明细表-->
+    <insert id="insertOrderLine" parameterType="domain.OrderLine" useGeneratedKeys="true" keyProperty="lineId">
+        insert into sp_order_line (
+        order_id ,
+        sku_id ,
+        item_id ,
+        amount ,
+        price ,
+        sku_title ,
+        sku_img ,
+        split_id ,
+        sku_size ,
+        sku_color ,
+        sku_type ,
+        <if test="pinTieredPriceId!=null and pinTieredPriceId!=''">
+            pin_tiered_price_id,
+        </if>
+        sku_type_id
+        )values(
+        #{orderId } ,
+        #{skuId} ,
+        #{itemId} ,
+        #{amount} ,
+        #{price} ,
+        #{skuTitle} ,
+        #{skuImg} ,
+        #{splitId} ,
+        #{skuSize} ,
+        #{skuColor} ,
+        #{skuType} ,
+        <if test="pinTieredPriceId!=null and pinTieredPriceId!=''">
+            #{pinTieredPriceId},
+        </if>
+        #{skuTypeId}
+        )
+    </insert>
+
+    <select id="selectOrderLine" parameterType="domain.OrderLine" resultType="domain.OrderLine">
+        select line_id,
+        order_id ,
+        sku_id ,
+        item_id ,
+        amount ,
+        price ,
+        sku_title ,
+        sku_img ,
+        split_id ,
+        sku_size ,
+        sku_color ,
+        sku_type ,
+        sku_type_id,
+        pin_tiered_price_id
+        from sp_order_line where 1=1
+        <if test="lineId!=null and lineId!=''">
+            and line_id=#{lineId}
+        </if>
+        <if test="orderId!=null and orderId!=''">
+            and order_id=#{orderId}
+        </if>
+        <if test="skuId!=null and skuId!=''">
+            and sku_id =#{skuId}
+        </if>
+        <if test="itemId !=null and itemId!=''">
+            and item_id=#{itemId}
+        </if>
+        <if test="splitId !=null and splitId!=''">
+            and split_id=#{splitId}
+        </if>
+        <if test="skuType !=null and skuType!=''">
+            and sku_type=#{skuType}
+        </if>
+        <if test="skuTypeId !=null and skuTypeId!=''">
+            and sku_type_id=#{skuTypeId}
+        </if>
+    </select>
+
+    <!--订单用户地址信息-->
+    <insert id="insertOrderAddress" parameterType="domain.OrderAddress" useGeneratedKeys="true" keyProperty="shipId">
+        insert into sp_order_ship(
+        order_id            ,
+        delivery_name       ,
+        delivery_tel        ,
+        delivery_city       ,
+        delivery_address    ,
+        delivery_card_num
+        )values(
+            #{orderId}            ,
+            #{deliveryName}       ,
+            #{deliveryTel}        ,
+            #{deliveryCity}       ,
+            #{deliveryAddress}    ,
+            #{deliveryCardNum}
+        )
+    </insert>
+
+    <select id="selectOrderAddress" parameterType="domain.OrderAddress" resultType="domain.OrderAddress">
+        select ship_id ,
+        order_id ,
+        delivery_name ,
+        delivery_tel ,
+        delivery_city ,
+        delivery_address ,
+        delivery_card_num
+        from sp_order_ship where 1=1
+        <if test="shipId!=null and shipId!=''">
+            and ship_id=#{shipId}
+        </if>
+        <if test="orderId!=null and orderId!=''">
+            and order_id=#{orderId}
+        </if>
+    </select>
+
+    <!--退款页面-->
+    <insert id="insertRefund" parameterType="domain.Refund" useGeneratedKeys="true" keyProperty="id">
+        insert into sp_refund(
+        order_id ,
+        pay_back_fee ,
+        reason ,
+        create_at ,
+        <if test="amount!=null and amount!=''">
+            amount,
+        </if>
+        <if test="refundImg!=null and refundImg!=''">
+            refund_img,
+        </if>
+        <if test="contactName!=null and contactName!=''">
+            contact_name,
+        </if>
+        <if test="contactTel!=null and contactTel!=''">
+            contact_tel,
+        </if>
+        <if test="skuType!=null and skuType!=''">
+            sku_type,
+        </if>
+        <if test="skuTypeId!=null and skuTypeId!=''">
+            sku_type_id,
+        </if>
+        <if test="skuId!=null and skuId!=''">
+            sku_id,
+        </if>
+        <if test="refundType!=null and refundType!=''">
+            refund_type,
+        </if>
+        <if test="splitOrderId!=null and splitOrderId!=''">
+            split_order_id,
+        </if>
+        user_id
+        )values(
+        #{orderId},
+        #{payBackFee},
+        #{reason},
+        CURRENT_TIMESTAMP(0),
+        <if test="amount!=null and amount!=''">
+            #{amount},
+        </if>
+        <if test="refundImg!=null and refundImg!=''">
+            #{refundImg},
+        </if>
+        <if test="contactName!=null and contactName!=''">
+            #{contactName},
+        </if>
+        <if test="contactTel!=null and contactTel!=''">
+            #{contactTel},
+        </if>
+        <if test="skuType!=null and skuType!=''">
+            #{skuType},
+        </if>
+        <if test="skuTypeId!=null and skuTypeId!=''">
+            #{skuTypeId},
+        </if>
+        <if test="skuId!=null and skuId!=''">
+            #{skuId},
+        </if>
+        <if test="refundType!=null and refundType!=''">
+            #{refundType},
+        </if>
+        <if test="splitOrderId!=null and splitOrderId!=''">
+            #{splitOrderId},
+        </if>
+        #{userId}
+        )
+    </insert>
+
+    <!--退款页面-->
+    <insert id="updateRefund" parameterType="domain.Refund">
+        update sp_refund set update_at = CURRENT_TIMESTAMP(0)
+        <if test="refundImg!=null and refundImg!=''">
+            ,refund_img = #{refundImg}
+        </if>
+        <if test="payBackFee!=null and payBackFee!=''">
+            ,pay_back_fee = #{payBackFee}
+        </if>
+        <if test="reason!=null and reason!=''">
+            ,reason = #{reason}
+        </if>
+        <if test="amount!=null and amount!=''">
+            ,amount = #{amount}
+        </if>
+        <if test="contactName!=null and contactName!=''">
+            ,contact_name = #{contactName}
+        </if>
+        <if test="contactTel!=null and contactTel!=''">
+            ,contact_tel = #{contactTel}
+        </if>
+        <if test="refundType!=null and refundType!=''">
+            ,refund_type = #{refundType}
+        </if>
+        <if test="state!=null and state!=''">
+            ,state = #{state}
+        </if>
+        <if test="pgCode!=null and pgCode!=''">
+            ,pg_code = #{pgCode}
+        </if>
+        <if test="pgMessage!=null and pgMessage!=''">
+            ,pg_message = #{pgMessage}
+        </if>
+        <if test="pgTradeNo!=null and pgTradeNo!=''">
+            ,pg_trade_no = #{pgTradeNo}
+        </if>
+        where 1=1
+        <if test="id!=null and id!=''">
+            and id = #{id}
+        </if>
+        <if test="userId!=null and userId!=''">
+            and user_id = #{userId}
+        </if>
+        <if test="splitOrderId!=null and splitOrderId!=''">
+            and split_order_id = #{splitOrderId}
+        </if>
+        <if test="skuId!=null and skuId!=''">
+            and sku_id = #{skuId}
+        </if>
+        <if test="orderId!=null and orderId!=''">
+            and order_id = #{orderId}
+        </if>
+        <if test="skuType!=null and skuType!=''">
+            and sku_type = #{skuType}
+        </if>
+        <if test="skuTypeId!=null and skuTypeId!=''">
+            and skut_type_id = #{skuTypeId}
+        </if>
+    </insert>
+
+    <select id="selectRefund" parameterType="domain.Refund" resultType="domain.Refund">
+        select
+        id ,
+        order_id ,
+        pay_back_fee ,
+        reason ,
+        state ,
+        create_at ,
+        pg_trade_no ,
+        update_at ,
+        pg_code ,
+        pg_message ,
+        amount ,
+        refund_img ,
+        contact_name ,
+        contact_tel ,
+        express_company ,
+        express_comp_code ,
+        express_num ,
+        reject_reason ,
+        user_id ,
+        split_order_id ,
+        sku_type,
+        sku_type_id,
+        sku_id,
+        refund_type
+        from sp_refund where 1=1
+        <if test="id!=null and id!=''">
+            and id = #{id}
+        </if>
+        <if test="userId!=null and userId!=''">
+            and user_id = #{userId}
+        </if>
+        <if test="splitOrderId!=null and splitOrderId!=''">
+            and split_order_id = #{splitOrderId}
+        </if>
+        <if test="skuId!=null and skuId!=''">
+            and sku_id = #{skuId}
+        </if>
+        <if test="orderId!=null and orderId!=''">
+            and order_id = #{orderId}
+        </if>
+    </select>
+
+
+    <insert id="insertCollect" parameterType="domain.Collect" useGeneratedKeys="true" keyProperty="collectId">
+        insert into sp_collect(
+        user_id             ,
+        sku_id              ,
+        create_at           ,
+        sku_type            ,
+        sku_type_id
+        )values(
+        #{userId},
+        #{skuId},
+        CURRENT_TIMESTAMP(0),
+        #{skuType},
+        #{skuTypeId}
+        )
+    </insert>
+
+    <select id="selectCollect" parameterType="domain.Collect" resultType="domain.Collect">
+        select
+        collect_id ,
+        user_id ,
+        sku_id ,
+        create_at ,
+        sku_type ,
+        sku_type_id
+        from sp_collect where 1=1
+        <if test="collectId!=null and collectId!=''">
+            and collect_id = #{collectId}
+        </if>
+        <if test="userId!=null and userId!=''">
+            and user_id = #{userId}
+        </if>
+        <if test="skuId!=null and skuId!=''">
+            and sku_id = #{skuId}
+        </if>
+        <if test="skuType!=null and skuType!=''">
+            and sku_type = #{skuType}
+        </if>
+        <if test="skuTypeId!=null and skuTypeId!=''">
+            and sku_type_id = #{skuTypeId}
+        </if>
+
+        ORDER BY create_at DESC,sku_id
+
+    </select>
+
+    <delete id="deleteCollect" parameterType="domain.Collect">
+        delete from sp_collect where 1=1
+        <if test="collectId!=null and collectId !=''">
+            and collect_id = #{collectId}
+        </if>
+        <if test="userId!=null and userId!=''">
+            and user_id =#{userId}
+        </if>
+    </delete>
+
+
+    <sql id="shoppingRemark">
+       ${alias}.id
+      ,${alias}.user_id
+      ,${alias}.order_id
+      ,${alias}.create_at
+      ,${alias}.content
+      ,${alias}.picture
+      ,${alias}.grade
+      ,${alias}.sku_type
+      ,${alias}.sku_type_id
+    </sql>
+
+    <select id="selectRemark" parameterType="domain.Remark" resultType="domain.Remark">
+        select
+        <include refid="shoppingRemark">
+            <property name="alias" value="t"/>
+        </include>
+        from sp_remark t
+        where 1=1
+        <if test="id!=null and id !=''">
+            and t.id = #{id}
+        </if>
+        <if test="userId!=null and userId !=''">
+            and t.user_id = #{userId}
+        </if>
+        <if test="orderId!=null and orderId !=''">
+            and t.order_id = #{orderId}
+        </if>
+        <if test="skuType!=null and skuType!=''">
+            and t.sku_type = #{skuType}
+        </if>
+        <if test="skuTypeId!=null and skuTypeId!=''">
+            and t.sku_type_id = #{skuTypeId}
+        </if>
+        order by t.picture,t.grade DESC,t.create_at DESC
+
+    </select>
+
+
+    <select id="selectRemarkPaging" resultType="domain.Remark" parameterType="domain.Remark">
+        select
+        <include refid="shoppingRemark">
+            <property name="alias" value="t"/>
+        </include>
+        from sp_remark t
+        where 1=1
+        <if test="id!=null and id !=''">
+            and t.id = #{id}
+        </if>
+        <if test="userId!=null and userId !=''">
+            and t.user_id = #{userId}
+        </if>
+        <if test="orderId!=null and orderId !=''">
+            and t.order_id = #{orderId}
+        </if>
+        <if test="skuType!=null and skuType!=''">
+            and t.sku_type = #{skuType}
+        </if>
+        <if test="skuTypeId!=null and skuTypeId!=''">
+            and t.sku_type_id = #{skuTypeId}
+        </if>
+        order by t.picture,t.grade DESC,t.create_at DESC
+        LIMIT #{pageSize} OFFSET #{offset}
+    </select>
+
+    <insert id="insertRemark" parameterType="domain.Remark" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO sp_remark (
+        user_id,
+        order_id,
+        create_at,
+        content,
+        <if test="picture!=null and picture!=''">
+            picture,
+        </if>
+        grade,
+        sku_type,
+        sku_type_id
+        ) VALUES (
+        #{userId},
+        #{orderId},
+        CURRENT_TIMESTAMP(0),
+        #{content},
+        <if test="picture!=null and picture!=''">
+            #{picture},
+        </if>
+        #{grade},
+        #{skuType},
+        #{skuTypeId}
+        )
+    </insert>
+
+    <update id="updateRemark" parameterType="domain.Remark">
+        UPDATE sp_remark SET user_id = user_id
+        <if test="picture!=null and picture!=''">
+            ,picture=#{picture}
+        </if>
+        where 1=1
+        <if test="id!=null and id !=''">
+            and id = #{id}
+        </if>
+        <if test="userId!=null and userId !=''">
+            and user_id = #{userId}
+        </if>
+        <if test="orderId!=null and orderId !=''">
+            and order_id = #{orderId}
+        </if>
+        <if test="skuType!=null and skuType!=''">
+            and sku_type = #{skuType}
+        </if>
+        <if test="skuTypeId!=null and skuTypeId!=''">
+            and sku_type_id = #{skuTypeId}
+        </if>
+    </update>
+
+</mapper>

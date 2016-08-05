@@ -1,0 +1,277 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="mapper.SkuMapper">
+
+    <!--enable mybatis default cache configure reference:
+        https://mybatis.github.io/mybatis-3/zh/sqlmap-xml.html#cache
+    -->
+    <!--<cache/>-->
+
+    <sql id="invColumns">
+        ${alias}.id ,
+        ${alias}.item_id ,
+        ${alias}.item_color ,
+        ${alias}.item_size ,
+        ${alias}.amount ,
+        ${alias}.item_src_price ,
+        ${alias}.item_price ,
+        ${alias}.item_cost_price ,
+        ${alias}.item_discount ,
+        ${alias}.sold_amount ,
+        ${alias}.rest_amount ,
+        ${alias}.inv_img ,
+        ${alias}.item_preview_imgs::text ,
+        ${alias}.or_destroy ,
+        ${alias}.destroy_at ,
+        ${alias}.update_at ,
+        ${alias}.create_at ,
+        ${alias}.or_master_inv ,
+        case
+            when ${alias}.start_at &gt;CURRENT_TIMESTAMP(0) then 'P'
+            when ${alias}.end_at  &lt;CURRENT_TIMESTAMP(0) then 'D'
+            else ${alias}.state
+        end as state,
+        ${alias}.inv_area ,
+        case
+            when ${alias}.inv_area='H' then '杭州保税仓备货'
+            when ${alias}.inv_area='G' then '广州保税仓备货'
+            when ${alias}.inv_area='S' then '上海保税仓备货'
+            when ${alias}.inv_area='SZ' then '上海保税区直邮'
+            when ${alias}.inv_area='GZ' then '广州保税仓直邮'
+            when ${alias}.inv_area='HZ' then '杭州保税仓直邮'
+            when ${alias}.inv_area='K' then '海外直邮'
+            else '其它'
+        end as inv_area_nm,
+        ${alias}.restrict_amount ,
+        ${alias}.inv_title ,
+        ${alias}.inv_customs ,
+        ${alias}.inv_weight ,
+        COALESCE(${alias}.postal_tax_rate,(select f.rate from tax_code f where f.code = t.postal_tax_code)) as
+        postal_tax_rate,
+        ${alias}.carriage_model_code,
+        (select parameter_val from sys_parameter where parameter_code='POSTAL_STANDARD') as postalStandard,
+        (select parameter_val from sys_parameter where parameter_code='POSTAL_LIMIT') as postalLimit
+    </sql>
+
+    <sql id="skusColumns">
+        ${alias}.sku_type,
+        ${alias}.sku_type_id,
+        ${alias}.inv_id,
+        case
+        when ${alias}.sku_type_start_at &gt;CURRENT_TIMESTAMP(0) then 'P'
+        when ${alias}.sku_type_end_at  &lt;CURRENT_TIMESTAMP(0) then 'D'
+        else ${alias}.sku_type_status
+        end as sku_type_status,
+        ${alias}.sku_type_price,
+        ${alias}.sku_type_theme_id,
+        ${alias}.sku_type_sold_amount,
+        ${alias}.sku_type_limit_amount,
+        ${alias}.sku_type_title,
+        ${alias}.sku_type_start_at,
+        ${alias}.sku_type_end_at,
+        ${alias}.sku_type_restrict_amount,
+        ${alias}.sku_type_floor_price,
+        ${alias}.sku_type_discount,
+        ${alias}.sku_type_img,
+        ${alias}.id,
+        ${alias}.item_id,
+        ${alias}.item_color,
+        ${alias}.item_size,
+        ${alias}.amount,
+        ${alias}.item_src_price,
+        ${alias}.item_price,
+        ${alias}.item_cost_price,
+        ${alias}.item_discount,
+        ${alias}.sold_amount,
+        ${alias}.rest_amount,
+        ${alias}.inv_img,
+        ${alias}.item_preview_imgs::text,
+        ${alias}.or_destroy,
+        ${alias}.destroy_at,
+        ${alias}.update_at,
+        ${alias}.create_at,
+        ${alias}.or_master_inv,
+        ${alias}.state,
+        ${alias}.inv_area,
+        case
+        when ${alias}.inv_area='H' then '杭州保税仓备货'
+        when ${alias}.inv_area='G' then '广州保税仓备货'
+        when ${alias}.inv_area='S' then '上海保税仓备货'
+        when ${alias}.inv_area='SZ' then '上海保税区直邮'
+        when ${alias}.inv_area='GZ' then '广州保税仓直邮'
+        when ${alias}.inv_area='HZ' then '杭州保税仓直邮'
+        when ${alias}.inv_area='K' then '海外直邮'
+        else '其它'
+        end as inv_area_nm,
+        ${alias}.restrict_amount,
+        ${alias}.inv_title,
+        ${alias}.inv_customs,
+        COALESCE(${alias}.postal_tax_rate,(select f.rate from tax_code f where f.code = t.postal_tax_code)) as postal_tax_rate,
+        (select parameter_val from sys_parameter where parameter_code='POSTAL_STANDARD') as postalStandard,
+        ${alias}.inv_weight,
+        ${alias}.postal_tax_rate,
+        ${alias}.carriage_model_code,
+        ${alias}.record_code,
+        ${alias}.start_at,
+        ${alias}.end_at,
+        ${alias}.or_vary_price,
+        ${alias}.share_url,
+        ${alias}.share_count,
+        ${alias}.collect_count,
+        ${alias}.browse_count,
+        ${alias}.theme_id,
+        ${alias}.inv_code
+    </sql>
+
+
+    <select id="getAllSkus" resultType="domain.SkuVo" parameterType="domain.SkuVo">
+        select
+        <include refid="skusColumns">
+            <property name="alias" value="t"/>
+        </include>
+        from skus t where 1=1
+        <if test="skuType!=null and skuType!=''">
+            and sku_type=#{skuType}
+        </if>
+        <if test="skuTypeId!=null and skuTypeId!=''">
+            and sku_type_id=#{skuTypeId}
+        </if>
+        <if test="invId!=null and invId!=''">
+            and inv_id=#{invId}
+        </if>
+        <if test="skuTypeStatus!=null and skuTypeStatus!=''">
+            and sku_type_status=#{skuTypeStatus}
+        </if>
+    </select>
+
+
+    <!---  获取用户购物车,以用户ID或者CartID    -->
+
+    <select id="getInv" resultType="domain.Sku" parameterType="domain.Sku">
+        select
+        <include refid="invColumns">
+            <property name="alias" value="t"/>
+        </include>
+        from inventories t where 1=1
+        <if test="id != null and id!=''">
+            and t.id=#{id}
+        </if>
+        <if test="itemId != null and itemId!=''">
+            and t.item_id=#{itemId}
+        </if>
+    </select>
+
+    <update id="updateInv" parameterType="domain.Sku">
+        update inventories set update_at= CURRENT_TIMESTAMP(0)
+        <if test="soldAmount != null and soldAmount!=''">
+            ,sold_amount=#{soldAmount}
+        </if>
+        <if test="restAmount != null and restAmount!=''">
+            ,rest_amount=#{restAmount}
+        </if>
+        <if test="state != null and state!=''">
+            ,state=#{state}
+        </if>
+        where 1=1
+        <if test="id != null and id!=''">
+            and id=#{id}
+        </if>
+    </update>
+
+    <!--获取系统参数表-->
+    <sql id="sysParameterColumns">
+        ${alias}.sys_id ,
+        ${alias}.parameter_nm ,
+        ${alias}.parameter_val ,
+        ${alias}.parameter_code
+    </sql>
+    <select id="getSysParameter" parameterType="domain.SysParameter" resultType="domain.SysParameter">
+        select
+        <include refid="sysParameterColumns">
+            <property name="alias" value="t"/>
+        </include>
+        from sys_parameter t where 1=1
+        <if test="sysId != null and sysId!=''">
+            and t.sys_id=#{sysId}
+        </if>
+        <if test="parameterCode != null and parameterCode!=''">
+            and t.parameter_code=#{parameterCode}
+        </if>
+    </select>
+
+
+    <!--获取邮费模版-->
+    <select id="getCarriage" parameterType="domain.Carriage" resultType="domain.Carriage">
+        SELECT COALESCE (cc.id, c.id) id,
+        COALESCE (cc.add_fee,c.add_fee) add_fee,
+        COALESCE (cc.add_num,c.add_num) add_num,
+        COALESCE (cc.city_code,c.city_code) city_code,
+        COALESCE (cc.first_fee,c.first_fee) first_fee,
+        COALESCE (cc.first_num,c.first_num) first_num,
+        COALESCE (cc.model_code,c.model_code) model_code,
+        COALESCE (cc.model_name,c.model_name) model_name,
+        COALESCE (cc.delivery_code,c.delivery_code) delivery_code,
+        COALESCE (cc.delivery_name,c.delivery_name) delivery_name,
+        COALESCE (cc.store_area,c.store_area) store_area
+        FROM carriage c LEFT JOIN
+        (SELECT c1.id,
+        c1.add_fee,
+        c1.add_num,
+        c1.city_code,
+        c1.first_fee,
+        c1.first_num,
+        c1.model_code,
+        c1.model_name,
+        c1.delivery_code,
+        c1.delivery_name,
+        c1.store_area
+        FROM carriage c1
+        WHERE 1=1
+        <if test="cityCode!=null and cityCode!=''">
+            and c1.city_code = #{cityCode}
+        </if>
+        <if test="cityCode==null or cityCode==''">
+            and c1.city_code = 'ALL'
+        </if>
+        ) cc
+        on cc.store_area=c.store_area where 1=1
+        <if test="storeArea!=null and storeArea!=''">
+            and c.store_area = #{storeArea}
+        </if>
+        and c.city_code = 'ALL'
+    </select>
+
+    <sql id="versioningColumns">
+        ${alias}.id              ,
+        ${alias}.release_number   ,
+        ${alias}.product_type    ,
+        ${alias}.download_link   ,
+        ${alias}.admin_user_id   ,
+        ${alias}.release_desc    ,
+        to_char(${alias}.release_at, 'YYYY-MM-DD HH24:MI:SS') release_at,
+        ${alias}.file_name         ,
+        ${alias}.current_version   ,
+        ${alias}.update_req_xml     ,
+        ${alias}.app_store_download_link,
+        ${alias}.release_name
+    </sql>
+    <!-- -->
+    <select id="getVersioning" resultType="domain.VersionVo" parameterType="domain.VersionVo">
+        select
+        <include refid="versioningColumns">
+            <property name="alias" value="t"/>
+        </include>
+        from versioning t where 1=1
+        <if test="productType!=null and productType!=''">
+            and product_type=#{productType}
+        </if>
+        <if test="id!=null and id!=''">
+            and id=#{id}
+        </if>
+        order by current_version DESC,release_number DESC
+    </select>
+
+</mapper>
