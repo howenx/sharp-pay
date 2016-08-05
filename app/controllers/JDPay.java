@@ -287,9 +287,9 @@ public class JDPay extends Controller {
         String settle_currency = "USD";
 
         params.put("customer_no", SysParCom.JD_SELLER);
-        params.put("notify_url", SysParCom.PAY_JD_CALLBACK_BACK);
+        params.put("notify_url", SysParCom.PAY_URL + "/client/pay/jd/back");
         params.put("request_datetime", req_date);
-        params.put("return_url", SysParCom.PAY_JD_CALLBACK_FRONT);
+        params.put("return_url", SysParCom.PAY_URL + "/client/pay/jd/front");
         params.put("settle_currency", settle_currency);
         params.put("trade_currency", trade_currency);
         params.put("sign_type", sign_type);

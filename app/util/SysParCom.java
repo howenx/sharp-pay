@@ -127,9 +127,7 @@ public class SysParCom {
     public static Boolean PAY_SHOW_WEIXIN;
     //支付宝支付是否显示
     public static Boolean PAY_SHOW_ALIPAY;
-
-    public static String PAY_JD_CALLBACK_BACK;
-    public static String PAY_JD_CALLBACK_FRONT;
+    
 
     @Inject
     public SysParCom(SkuService skuService, Configuration configuration) {
@@ -243,7 +241,5 @@ public class SysParCom {
         PAY_SHOW_WEIXIN=configuration.getBoolean("pay.show.weixin");
         PAY_SHOW_ALIPAY=configuration.getBoolean("pay.show.alipay");
 
-        PAY_JD_CALLBACK_BACK = configuration.getString("jd.pay.callback.back");
-        PAY_JD_CALLBACK_FRONT = configuration.getString("jd.pay.callback.front");
     }
 }
