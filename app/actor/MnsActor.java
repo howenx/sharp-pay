@@ -25,7 +25,7 @@ public class MnsActor extends AbstractActor {
         receive(ReceiveBuilder.match(Object.class, event -> {
             try (Jedis jedis = RedisPool.createPool().getResource()){
                 if (event instanceof ILoggingEvent) {
-                    ((ILoggingEvent) event).getMDCPropertyMap().put("projectId", "style-shopping");
+                    ((ILoggingEvent) event).getMDCPropertyMap().put("projectId", "style-pay");
                     jedis.publish(REDIS_CHANNEL, Json.mapper().configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false).valueToTree(event).toString());
                 }
             }
