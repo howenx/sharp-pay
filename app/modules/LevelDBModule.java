@@ -15,7 +15,6 @@ public class LevelDBModule extends AbstractModule {
         bind(LevelFactory.class).asEagerSingleton();
         bind(NewScheduler.class);
         bind(SysParCom.class).asEagerSingleton();
-        bind(AppOnStart.class).asEagerSingleton();
         bind(MnsInit.class).asEagerSingleton();
         bind(LogUtil.class).asEagerSingleton();
         bind(RedisPool.class).asEagerSingleton();
