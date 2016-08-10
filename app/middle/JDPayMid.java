@@ -25,6 +25,8 @@ import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.util.*;
 
+import static util.SysParCom.ERP_PUSH;
+
 /**
  * 京东支付中间层
  * Created by howen on 16/2/17.
@@ -99,8 +101,8 @@ public class JDPayMid {
                 if (cartService.updateOrder(order)) {
 
                     Logger.info("京东支付回调订单更新订单信息: " + Json.toJson(order));
-//                    system.actorSelection(ERP_PUSH).tell(order.getOrderId(), ActorRef.noSender());
-//                    Logger.info("调用ERP推送订单:" + order.getOrderId());
+                    system.actorSelection(ERP_PUSH).tell(order.getOrderId(), ActorRef.noSender());
+                    Logger.info("调用ERP推送订单:" + order.getOrderId());
 
                     Logger.info("京东支付后端回调返回成功," + order.getOrderId());
                     return "success";
@@ -145,8 +147,8 @@ public class JDPayMid {
 
                 if (cartService.updateOrder(order)) {
                     Logger.info("异步通知,支付回调订单更新订单信息: " + Json.toJson(order));
-//                    system.actorSelection(ERP_PUSH).tell(order.getOrderId(), ActorRef.noSender());
-//                    Logger.info("调用ERP推送订单:" + order.getOrderId());
+                    system.actorSelection(ERP_PUSH).tell(order.getOrderId(), ActorRef.noSender());
+                    Logger.info("调用ERP推送订单:" + order.getOrderId());
 
                     Logger.info("异步通知,支付后端回调返回成功," + order.getOrderId());
                     return "success";
