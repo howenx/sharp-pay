@@ -32,37 +32,35 @@ img{
     width: 35%;
 }
 .succbtn{
-    width: 90%;
-    margin: 20px auto 0;
-    padding-bottom: 20px;
-    text-align: center;
+	width:90%;
+	margin: 20px auto 0;
+	padding:10px 0 20px 0;
+	text-align: center;
 }
 .succbtn>a{
-    display: inline-block;
-    text-align: center;
-    text-decoration: none;
-    padding: 10px 0;
-    font-weight: 500;
-    font-size: 18px;
+	display: inline-block;
+	text-align: center;
+	text-decoration: none;
+	font-weight: 500;
+	font-size: 12px;
+	border-radius: 5px;
+	padding: 10px 15px;
+	color:#242424;
 }
 .succbtn .checkorder{
-    width: 45%;
-    margin-right: 6%;
-    border: 2px solid rgb(174,174,174);
-    border-radius: 5px;
-    color: rgb(145,145,145);
+	border: 1px solid #d9d9d9;
+
+
 }
 .succbtn .returnhome{
-    width: 45%;
-    border: 2px solid rgb(255,128,131);
-    border-radius: 5px;
-    color: rgb(255,45,59);
+	border:1px solid #Fdd000;
+	color: #Fdd000;
 }
 .failP{
-    padding: 0 5%;
-    color: rgb(81,81,81);
-    line-height: 24px;
-    font-size: 14px;
-    letter-spacing:1px;
-    font-weight: 700;
+	padding: 0 5%;
+	color: rgb(81,81,81);
+	line-height: 24px;
+	font-size: 14px;
+	letter-spacing:1px;
+	font-weight: 700;
 }
