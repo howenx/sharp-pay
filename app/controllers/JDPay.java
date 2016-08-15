@@ -75,22 +75,19 @@ public class JDPay extends Controller {
     @Inject
     AlipayCtrl alipayCtrl;
 
-    private ActorRef pushCustomsActor;
 
     @Inject
-    public JDPay(CartService cartService, IdService idService, PromotionService promotionService, @Named("cancelOrderActor") ActorRef cancelOrderActor, @Named("pinFailActor") ActorRef pinFailActor,
-                 @Named("pushCustomsActor")ActorRef pushCustomsActor) {
+    public JDPay(CartService cartService, IdService idService, PromotionService promotionService, @Named("cancelOrderActor") ActorRef cancelOrderActor, @Named("pinFailActor") ActorRef pinFailActor) {
         this.cartService = cartService;
         this.idService = idService;
         this.cancelOrderActor = cancelOrderActor;
         this.promotionService = promotionService;
         this.pinFailActor = pinFailActor;
-        this.pushCustomsActor=pushCustomsActor;
     }
 
     @Security.Authenticated(UserAuth.class)
     public Result cashDesk(Long orderId, String paySrc) {
-        
+
         Map<String, String> params_failed = new HashMap<>();
         params_failed.put("m_index", M_INDEX);
 
@@ -334,12 +331,10 @@ public class JDPay extends Controller {
                                         return ok("error");
                                     } else {
                                         Logger.error("************京东支付异步通知 拼购订单返回成功************," + order.getOrderId());
-                                        pushCustomsActor.tell(order.getOrderId(),ActorRef.noSender());
                                         return ok("success");
                                     }
                                 } else {
                                     Logger.error("************京东支付异步通知 普通订单返回成功************," + order.getOrderId());
-                                    pushCustomsActor.tell(order.getOrderId(),ActorRef.noSender());
                                     return ok("success");
                                 }
                             } else {

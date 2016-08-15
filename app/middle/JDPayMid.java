@@ -52,6 +52,10 @@ public class JDPayMid {
     @Inject
     private ActorSystem system;
 
+    @Inject
+    @Named("pushCustomsActor")
+    private ActorRef pushCustomsActor;
+
 
     /**
      * 京东支付异步通知结果
@@ -103,7 +107,8 @@ public class JDPayMid {
                     Logger.info("京东支付回调订单更新订单信息: " + Json.toJson(order));
                     system.actorSelection(ERP_PUSH).tell(order.getOrderId(), ActorRef.noSender());
                     Logger.info("调用ERP推送订单:" + order.getOrderId());
-
+                    pushCustomsActor.tell(order.getOrderId(),ActorRef.noSender());
+                    Logger.info("报关订单:" + order.getOrderId());
                     Logger.info("京东支付后端回调返回成功," + order.getOrderId());
                     return "success";
 
@@ -363,7 +368,7 @@ public class JDPayMid {
      * @return map
      */
 
-    public Map<String, String> getCustomsBasicInfo(Long splitId) {
+    public Map<String, String> getCustomsBasicInfo(Order order,Long splitId) {
 
         OrderSplit ordersplit = new OrderSplit();
         ordersplit.setSplitId(splitId);
@@ -406,7 +411,7 @@ public class JDPayMid {
 
         params.put("sub_order_no", ordersplit.getSplitId().toString());
 
-        params.put("sub_out_trade_no", ordersplit.getSubPgTradeNo());
+        params.put("sub_out_trade_no", order.getPgTradeNo()+"001");
 
         params.put("sign_data", Crypto.create_sign(params, SysParCom.JD_SECRET));
 

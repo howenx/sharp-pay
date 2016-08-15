@@ -47,7 +47,7 @@ public class PushCustomsActor extends AbstractActor {
                     if (orderSplits.size() > 0) {
                         for (OrderSplit os : orderSplits) {
                             StringBuilder sb = new StringBuilder();
-                            jdPayMid.getCustomsBasicInfo(os.getSplitId()).forEach((k, v) -> sb.append(k).append("=").append(v).append("&"));
+                            jdPayMid.getCustomsBasicInfo(order,os.getSplitId()).forEach((k, v) -> sb.append(k).append("=").append(v).append("&"));
 
                             Logger.info("京东海关发送信息: " + sb.toString());
 
