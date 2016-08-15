@@ -34,6 +34,7 @@ public class PushCustomsActor extends AbstractActor {
     @Inject
     public PushCustomsActor(NewScheduler newScheduler, WSClient ws, JDPayMid jdPayMid, CartService cartService, @Named("queryCustomStatusActor") ActorRef queryCustomStatusActor) {
         receive(ReceiveBuilder.match(Long.class, orderId -> {
+            Logger.info("京东支付报关orderId="+orderId);
             try {
                 Order order = new Order();
                 order.setOrderId(orderId);
@@ -47,6 +48,8 @@ public class PushCustomsActor extends AbstractActor {
                         for (OrderSplit os : orderSplits) {
                             StringBuilder sb = new StringBuilder();
                             jdPayMid.getCustomsBasicInfo(os.getSplitId()).forEach((k, v) -> sb.append(k).append("=").append(v).append("&"));
+
+                            Logger.info("京东海关发送信息: " + sb.toString());
 
                             ws.url(SysParCom.JD_PUSH_URL).setContentType("application/x-www-form-urlencoded").post(sb.toString()).map(wsResponse -> {
                                 JsonNode response = wsResponse.asJson();
