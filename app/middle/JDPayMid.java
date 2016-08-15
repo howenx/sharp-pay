@@ -366,7 +366,7 @@ public class JDPayMid {
     public Map<String, String> getCustomsBasicInfo(Long splitId) {
 
         OrderSplit ordersplit = new OrderSplit();
-        ordersplit.setOrderId(splitId);
+        ordersplit.setSplitId(splitId);
 
         try {
             List<OrderSplit> orders = cartService.selectOrderSplit(ordersplit);
@@ -401,6 +401,12 @@ public class JDPayMid {
         ObjectMapper mapper=new ObjectMapper();
         Map<String, String> customs = mapper.convertValue(configuration.getObject(ordersplit.getCbeCode()), mapper.getTypeFactory().constructMapType(Map.class, String.class, String.class));
         if (customs.size() > 0) params.putAll(customs);
+
+        params.put("out_trade_no", ordersplit.getOrderId().toString());
+
+        params.put("sub_order_no", ordersplit.getSplitId().toString());
+
+        params.put("sub_out_trade_no", ordersplit.getSubPgTradeNo());
 
         params.put("sign_data", Crypto.create_sign(params, SysParCom.JD_SECRET));
 
