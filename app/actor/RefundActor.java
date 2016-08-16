@@ -126,12 +126,12 @@ public class RefundActor extends AbstractActor {
                     } else if (!"SUCCESS".equals(resultMap.get("return_code"))) { //返回状态码  SUCCESS/FAIL 此字段是通信标识，非交易标识，交易是否成功需要查看result_code来判断
                         Logger.error(refund.getUserId() + "微信退款失败,返回状态码:" + resultMap.get("return_code"));
                     } else {
-                        String out_refund_no=resultMap.get("out_refund_no");
-                        re.setOrderId(Long.valueOf(out_refund_no));
                         re.setPgCode(resultMap.get("result_code"));
                         re.setPgMessage(resultMap.get("return_msg"));
                         re.setPgTradeNo(resultMap.get("refund_id"));//微信退款单号
                         if (resultMap.get("result_code").equals("SUCCESS")) {
+                            String out_refund_no=resultMap.get("out_refund_no");
+                            re.setOrderId(Long.valueOf(out_refund_no));
                             re.setState("Y");
                             Order order1 = new Order();
                             order1.setOrderId(refund.getOrderId());
