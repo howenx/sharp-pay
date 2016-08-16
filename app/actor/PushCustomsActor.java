@@ -52,17 +52,30 @@ public class PushCustomsActor extends AbstractActor {
                             Logger.info("京东海关发送信息: " + sb.toString());
 
                             ws.url(SysParCom.JD_PUSH_URL).setContentType("application/x-www-form-urlencoded").post(sb.toString()).map(wsResponse -> {
+
                                 JsonNode response = wsResponse.asJson();
+                                ObjectMapper mapper=new ObjectMapper();
+
+                               // JsonNode response = mapper.readValue("{\"cbe_code\":\"NWmHs13\",\"cbe_code_insp\":\"NWmHs13\",\"cbe_name\":\"北京东方爱怡斯科技有限公司\",\"custom\":\"shanghai\",\"customer_no\":\"23237662\",\"ecp_code\":\"NWmHs13\",\"ecp_code_insp\":\"3100100384\",\"ecp_name\":\"北京东方爱怡斯科技有限公司\",\"freight\":\"0\",\"goods_fee\":\"1000\",\"is_success\":\"Y\",\"out_trade_no\":\"50100348\",\"response_code\":\"00000\",\"response_datetime\":\"20160815T182234\",\"response_message\":\"成功\",\"sign_data\":\"6FD40FD4E691D5FCAE7F7F7EA31DA2F0\",\"sign_type\":\"MD5\",\"sub_order_no\":\"40100116\",\"sub_out_trade_no\":\"2016081511001100570506376001\",\"tax_fee\":\"0\"}", JsonNode.class);
+
                                 Logger.info("京东海关报送返回JSON: " + response.toString());
 
-                                String sign_data = response.get("sign_data").asText();
-                                ObjectMapper mapper=new ObjectMapper();
+                                String sign_data ="";
+                                if(response.has("sign_data")){
+                                    sign_data=response.get("sign_data").asText();
+                                }
+
+
                                 Map<String, String> params = mapper.convertValue(response, mapper.getTypeFactory().constructMapType(HashMap.class, String.class, String.class));
 
+                                Logger.info("==参数=="+params.toString()+"========="+params.size());
+
                                 String _sign = Crypto.create_sign(params, SysParCom.JD_SECRET);
+                                Logger.info("我方签名_sign=="+_sign+",对方签名sign_data=="+sign_data);
                                 if (!sign_data.equalsIgnoreCase(_sign)) {
                                     Logger.info("京东海关报送返回签名校验失败");
-                                } else {
+                                }
+                                // else {
                                     os.setPayResponseCode(params.get("response_code"));
                                     os.setPayResponseMsg(params.get("response_message"));
                                     os.setSubPgTradeNo(params.get("sub_out_trade_no"));
@@ -75,7 +88,7 @@ public class PushCustomsActor extends AbstractActor {
 
                                         newScheduler.schedule(Duration.create(5000, TimeUnit.MILLISECONDS),Duration.create(SysParCom.JD_QUERY_DELAY, TimeUnit.MILLISECONDS),queryCustomStatusActor,map);
                                     }
-                                }
+                              //  }
                                 return null;
                             });
                         }

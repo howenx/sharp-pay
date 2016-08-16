@@ -58,7 +58,7 @@ public class Crypto {
         }
 
         String pre_sign = sb.toString();
-        Logger.debug(pre_sign);
+        Logger.info(pre_sign);
 
         return md5(pre_sign + secret);
 

@@ -391,12 +391,12 @@ public class JDPayMid {
         params.put("request_datetime", req_date);
         params.put("sign_type", sign_type);
         params.put("custom", ordersplit.getCbeCode());
-
-        params.put("tax_fee", ordersplit.getPostalFee().multiply(new BigDecimal(100)).setScale(0, BigDecimal.ROUND_HALF_UP).toPlainString());
-
-        params.put("goods_fee", ordersplit.getTotalPayFee().multiply(new BigDecimal(100)).setScale(0, BigDecimal.ROUND_HALF_UP).toPlainString());
-
-        params.put("freight", ordersplit.getShipFee().multiply(new BigDecimal(100)).setScale(0, BigDecimal.ROUND_HALF_UP).toPlainString());
+        //新版接口没有这三个参数了
+//        params.put("tax_fee", ordersplit.getPostalFee().multiply(new BigDecimal(100)).setScale(0, BigDecimal.ROUND_HALF_UP).toPlainString());
+//
+//        params.put("goods_fee", ordersplit.getTotalPayFee().multiply(new BigDecimal(100)).setScale(0, BigDecimal.ROUND_HALF_UP).toPlainString());
+//
+//        params.put("freight", ordersplit.getShipFee().multiply(new BigDecimal(100)).setScale(0, BigDecimal.ROUND_HALF_UP).toPlainString());
 
         //tax_fee       //税款金额，单位：分，默认为0分
         //goods_fee     //货款金额，单位：分，默认与子订单支付时金额相同
