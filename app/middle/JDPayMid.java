@@ -419,10 +419,10 @@ public class JDPayMid {
     }
 
 
-    public Map<String, String> getCustomsQueryInfo(Long splitId) {
+    public Map<String, String> getCustomsQueryInfo(Order order,Long splitId) {
 
         OrderSplit ordersplit = new OrderSplit();
-        ordersplit.setOrderId(splitId);
+        ordersplit.setSplitId(splitId);
 
         try {
             List<OrderSplit> orders = cartService.selectOrderSplit(ordersplit);
@@ -445,7 +445,7 @@ public class JDPayMid {
 
         params.put("sub_order_no", ordersplit.getSplitId().toString());
 
-        params.put("sub_out_trade_no", ordersplit.getSubPgTradeNo());
+        params.put("sub_out_trade_no", order.getPgTradeNo()+"001");
 
         params.put("sign_data", Crypto.create_sign(params, SysParCom.JD_SECRET));
 

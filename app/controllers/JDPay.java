@@ -83,6 +83,7 @@ public class JDPay extends Controller {
         this.cancelOrderActor = cancelOrderActor;
         this.promotionService = promotionService;
         this.pinFailActor = pinFailActor;
+
     }
 
     @Security.Authenticated(UserAuth.class)

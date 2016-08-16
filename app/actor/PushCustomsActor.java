@@ -56,7 +56,7 @@ public class PushCustomsActor extends AbstractActor {
                                 JsonNode response = wsResponse.asJson();
                                 ObjectMapper mapper=new ObjectMapper();
 
-                               // JsonNode response = mapper.readValue("{\"cbe_code\":\"NWmHs13\",\"cbe_code_insp\":\"NWmHs13\",\"cbe_name\":\"北京东方爱怡斯科技有限公司\",\"custom\":\"shanghai\",\"customer_no\":\"23237662\",\"ecp_code\":\"NWmHs13\",\"ecp_code_insp\":\"3100100384\",\"ecp_name\":\"北京东方爱怡斯科技有限公司\",\"freight\":\"0\",\"goods_fee\":\"1000\",\"is_success\":\"Y\",\"out_trade_no\":\"50100348\",\"response_code\":\"00000\",\"response_datetime\":\"20160815T182234\",\"response_message\":\"成功\",\"sign_data\":\"6FD40FD4E691D5FCAE7F7F7EA31DA2F0\",\"sign_type\":\"MD5\",\"sub_order_no\":\"40100116\",\"sub_out_trade_no\":\"2016081511001100570506376001\",\"tax_fee\":\"0\"}", JsonNode.class);
+                             //   JsonNode response = mapper.readValue("{\"cbe_code\":\"NWmHs13\",\"cbe_code_insp\":\"NWmHs13\",\"cbe_name\":\"北京东方爱怡斯科技有限公司\",\"custom\":\"shanghai\",\"customer_no\":\"23237662\",\"ecp_code\":\"NWmHs13\",\"ecp_code_insp\":\"3100100384\",\"ecp_name\":\"北京东方爱怡斯科技有限公司\",\"is_success\":\"Y\",\"out_trade_no\":\"50100351\",\"response_code\":\"00000\",\"response_datetime\":\"20160816T103406\",\"response_message\":\"成功\",\"sign_data\":\"A7527893EB6527F8BDDB92F103FEF02E\",\"sign_type\":\"MD5\",\"sub_order_no\":\"40100117\",\"sub_out_trade_no\":\"2016081611001100170667268001\"}", JsonNode.class);
 
                                 Logger.info("京东海关报送返回JSON: " + response.toString());
 
@@ -72,6 +72,7 @@ public class PushCustomsActor extends AbstractActor {
 
                                 String _sign = Crypto.create_sign(params, SysParCom.JD_SECRET);
                                 Logger.info("我方签名_sign=="+_sign+",对方签名sign_data=="+sign_data);
+
                                 if (!sign_data.equalsIgnoreCase(_sign)) {
                                     Logger.info("京东海关报送返回签名校验失败");
                                 }

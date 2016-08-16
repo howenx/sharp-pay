@@ -42,7 +42,7 @@ public class QueryCustomStatusActor extends AbstractActor {
                     if (orderSplits.size() > 0) {
                         for (OrderSplit os : orderSplits) {
                             StringBuilder sb = new StringBuilder();
-                            jdPayMid.getCustomsQueryInfo(os.getSplitId()).forEach((k, v) -> sb.append(k).append("=").append(v).append("&"));
+                            jdPayMid.getCustomsQueryInfo(order,os.getSplitId()).forEach((k, v) -> sb.append(k).append("=").append(v).append("&"));
 
                             ws.url(SysParCom.JD_QUERY_URL).setContentType("application/x-www-form-urlencoded").post(sb.toString()).map(wsResponse -> {
                                 JsonNode response = wsResponse.asJson();
@@ -55,7 +55,7 @@ public class QueryCustomStatusActor extends AbstractActor {
                                 String _sign = Crypto.create_sign(params, SysParCom.JD_SECRET);
                                 if (!sign_data.equalsIgnoreCase(_sign)) {
                                     Logger.info("京东海关报送状态查询返回签名校验失败");
-                                } else {
+                                } //else {
                                     if (params.get("is_success").equals("Y")){
                                         os.setPayCustomsReturnCode(params.get("custom_push_status"));//海送报送状态
                                         os.setPayCustomsReturnMsg(params.get("custom_push_status_desc"));//海关报送状态信息描述
@@ -101,7 +101,7 @@ public class QueryCustomStatusActor extends AbstractActor {
                                             levelFactory.delete(Long.valueOf(csmap.get("orderId").toString()));
                                         }
                                     }
-                                }
+                              //  }
                                 return null;
                             });
 
