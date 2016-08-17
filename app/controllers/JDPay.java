@@ -127,7 +127,12 @@ public class JDPay extends Controller {
                     payShowMap.put("ALIPAY",SysParCom.PAY_SHOW_ALIPAY);
 
 
-                    return ok(views.html.cashdesk.render(params, paySrc, userType, token, securityCode,alipayCtrl.getAlipayParamsUrl(order, AlipayTradeType.DIRECT),payShowMap));
+                    //通用参数
+                    Map<String,String> commonMap=new HashMap<>();
+                    commonMap.put("m_orders",M_ORDERS);
+                    commonMap.put("m_index",M_INDEX);
+                    commonMap.put("all_fee",order.getPayTotal().stripTrailingZeros().toPlainString());
+                    return ok(views.html.cashdesk.render(params, paySrc, userType, token, securityCode,alipayCtrl.getAlipayParamsUrl(order, AlipayTradeType.DIRECT),payShowMap,commonMap));
                 }
             } else return ok(views.html.jdpayfailed.render(params_failed));
         } catch (Exception ex) {
@@ -182,8 +187,8 @@ public class JDPay extends Controller {
             getBasicInfo().forEach(params::put);
             params.put("orderCreateAt", String.valueOf(timeInMillis));
             params.put("url", JD_PAY_URL);
-            params.put("m_index", M_INDEX);
-            params.put("m_orders", M_ORDERS);
+//            params.put("m_index", M_INDEX);
+//            params.put("m_orders", M_ORDERS);
             params.put("sign_data", Crypto.create_sign(params, SysParCom.JD_SECRET));
             return params;
         } else return null;
@@ -223,7 +228,7 @@ public class JDPay extends Controller {
 
 
             //自用字断
-            map.put("all_fee", order.getPayTotal().stripTrailingZeros().toPlainString());
+          //  map.put("all_fee", order.getPayTotal().stripTrailingZeros().toPlainString());
             if (idPlusOptional.isPresent() && idPlusOptional.get().getPayJdToken() != null) {
                 map.put("token", idPlusOptional.get().getPayJdToken());
             }
@@ -401,6 +406,7 @@ public class JDPay extends Controller {
                         List<Order> orders = cartService.getOrder(order);
                         if (orders.size() > 0) {
                             order = orders.get(0);
+                            params.put("all_fee",order.getPayTotal().stripTrailingZeros().toPlainString());
                             if (order.getOrderType() != null && order.getOrderType() == 2) { //1:正常购买订单，2：拼购订单
                                 if (dealPinActivity(params, order) == null)
                                     return ok(views.html.jdpayfailed.render(params));

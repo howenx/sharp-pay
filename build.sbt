@@ -2,7 +2,7 @@ import play.routes.compiler.InjectedRoutesGenerator
 import play.sbt.PlayJava
 
 name := """style-pay"""
-version := "0.1.17"
+version := "0.1.18"
 
 lazy val root = (project in file(".")).enablePlugins(PlayJava)
 

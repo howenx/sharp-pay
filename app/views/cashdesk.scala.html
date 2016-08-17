@@ -1,4 +1,4 @@
-@(params:java.util.Map[String,String],paySrc:String,userType:String,token:String,securityCode:String,alipayParamUrl:String,payShowMap:java.util.Map[String,Boolean])
+@(params:java.util.Map[String,String],paySrc:String,userType:String,token:String,securityCode:String,alipayParamUrl:String,payShowMap:java.util.Map[String,Boolean],commonMap:java.util.Map[String,String])
 
 <!DOCTYPE html>
 <html lang="en">
@@ -31,7 +31,7 @@
     <body>
         @if("M"==paySrc){
             <header class="head">
-                <a href="@params.get("""m_orders""")" class="back">
+                <a href="@commonMap.get("""m_orders""")" class="back">
                     <i></i>
                     <b></b>
                 </a>
@@ -42,7 +42,7 @@
         }
         <div class="pay-change">
             <span>请选择支付方式</span>
-            <em>@params.get("all_fee")元</em>
+            <em>@commonMap.get("all_fee")元</em>
         </div>
         @if(true==payShowMap.get("""JD""")){
             <hr>
