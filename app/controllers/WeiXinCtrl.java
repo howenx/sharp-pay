@@ -148,7 +148,8 @@ public class WeiXinCtrl extends Controller {
      * @return
      */
     private String toWeiXinOrderId(Long orderId, WeiXinTradeType tradeType){
-        return orderId+tradeType.getOrderSuffix();
+        return orderId+"";
+       // return orderId+tradeType.getOrderSuffix();
     }
     /***
      * 普通订单号转微信用的订单号
@@ -157,7 +158,8 @@ public class WeiXinCtrl extends Controller {
      * @return
      */
     public Long fromWeiXinOrderId(String weixinOrderId, WeiXinTradeType tradeType){
-        return Long.valueOf(weixinOrderId.substring(0,weixinOrderId.length()-tradeType.getOrderSuffix().length()));
+        return Long.valueOf(weixinOrderId);
+     //   return Long.valueOf(weixinOrderId.substring(0,weixinOrderId.length()-tradeType.getOrderSuffix().length()));
     }
 
     /**
