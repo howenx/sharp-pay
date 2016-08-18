@@ -120,6 +120,9 @@ public class RefundActor extends AbstractActor {
                     Map<String, String> resultMap = weiXinCtrl.xmlToMap(result);
 
                     Refund re = new Refund();
+                    //退款失败的情况下获取不到这些值,所以先赋值
+                    re.setId(refund.getId());
+                    re.setOrderId(refund.getOrderId());
 
                     if (null == resultMap || resultMap.size() <= 0) {
                         Logger.error(refund.getUserId() + "微信退款返回结果为空");
