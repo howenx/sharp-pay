@@ -255,7 +255,8 @@ public class JDPay extends Controller {
                     OrderLine orderLine = new OrderLine();
                     orderLine.setOrderId(orderId);
                     orderLine.setSplitId(orderSp.getSplitId());
-                    subOrderMap.put("sub_order_no", orderSp.getSplitId().toString());
+                 //   subOrderMap.put("sub_order_no", orderSp.getSplitId().toString());
+                    subOrderMap.put("sub_order_no", orderSp.getOrderId().toString());
                     subOrderMap.put("sub_order_name", "KakaoGift-子订单号" + orderSp.getSplitId());
 
                     if (ONE_CENT_PAY) {
