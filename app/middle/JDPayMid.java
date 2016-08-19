@@ -412,7 +412,7 @@ public class JDPayMid {
      //   params.put("sub_order_no", ordersplit.getSplitId().toString());
         params.put("sub_order_no", ordersplit.getOrderId().toString());
 
-        params.put("sub_out_trade_no", order.getPgTradeNo()+"001");
+        params.put("sub_out_trade_no", order.getPgTradeNo());
 
         params.put("sign_data", Crypto.create_sign(params, SysParCom.JD_SECRET));
 
@@ -446,7 +446,7 @@ public class JDPayMid {
 
         params.put("sub_order_no", ordersplit.getOrderId().toString());
 
-        params.put("sub_out_trade_no", order.getPgTradeNo()+"001");
+        params.put("sub_out_trade_no", order.getPgTradeNo());
 
         params.put("sign_data", Crypto.create_sign(params, SysParCom.JD_SECRET));
 
