@@ -375,7 +375,7 @@ public class AlipayCtrl extends Controller {
      */
     private static String decodeKey(String signType){
         String key=ALIPAY_KEY;
-        if(signType.equals("RSA")){
+        if("RSA".equals(signType)){
             key=ALIPAY_RSA_PUBLIC_KEY;
         }
         return key;
@@ -391,6 +391,10 @@ public class AlipayCtrl extends Controller {
         Map<String, String> params = new HashMap<>();
         body_map.forEach((k, v) -> params.put(k, v[0]));
         Logger.info("支付宝支付回调返回params="+params);
+        if(null==params||params.size()<=0){
+            Logger.error("支付宝支付回调失败,参数为空");
+            return ok("fail");
+        }
 
         if(verifySign(params,params.get("sign"),params.get("sign_type"))) { //验证签名
             String verifyAli=verifyFromAlipay(params.get("notify_id"));
@@ -485,6 +489,12 @@ public class AlipayCtrl extends Controller {
         Map<String, String> returnMap = new HashMap<>();
         returnMap.put("m_index", M_INDEX);
         returnMap.put("m_orders", M_ORDERS);
+
+        if(null==params||params.size()<=0){
+            Logger.error("支付宝前端通知支付失败,参数为空");
+            return ok(views.html.jdpayfailed.render(returnMap));
+        }
+
         if(!verifySign(params,params.get("sign"),params.get("sign_type"))) { //验证签名
             Logger.error("支付宝前端通知支付失败,签名对应不一致");
             return ok(views.html.jdpayfailed.render(returnMap));
@@ -527,6 +537,10 @@ public class AlipayCtrl extends Controller {
         Map<String, String> params = new HashMap<>();
         body_map.forEach((k, v) -> params.put(k, v[0]));
         Logger.info("支付宝退款异步通知params="+params);
+        if(null==params||params.size()<=0){
+            Logger.error("支付宝退款异步通知失败,参数为空");
+            return ok("fail");
+        }
         if(verifySign(params,params.get("sign"),params.get("sign_type"))) { //验证签名
             String result_details=params.get("result_details");
             if(null!=result_details){
