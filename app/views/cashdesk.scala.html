@@ -16,7 +16,10 @@
            $(function () {
                // var orderId='@params.get("""out_trade_no""")';
                 var wsUri = "@routes.WeiXinCtrl.weixinsocket(params.get("""out_trade_no""")).webSocketURL()";
-               // var wsUri="ws://"
+                if('https:' == document.location.protocol){
+                    wsUri=wsUri.replace("ws://","wss://");
+                }
+               // var wsUri="wss://"
                 var WS = window['MozWebSocket'] ? MozWebSocket : WebSocket;
                 var dateSocket = new WS(wsUri);
                 dateSocket.onmessage = function (event) {

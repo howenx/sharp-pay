@@ -21,6 +21,9 @@
             }
            $(function () {
                 var wsUri = "@routes.WeiXinCtrl.weixinsocket(params.get("""orderId""")).webSocketURL()";
+                if('https:' == document.location.protocol){
+                    wsUri=wsUri.replace("ws://","wss://");
+                }
                 var WS = window['MozWebSocket'] ? MozWebSocket : WebSocket;
                 var dateSocket = new WS(wsUri);
                 dateSocket.onmessage = function (event) {
