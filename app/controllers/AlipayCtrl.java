@@ -561,17 +561,18 @@ public class AlipayCtrl extends Controller {
                                     Refund re = new Refund();
                                     re.setOrderId(order.getOrderId());
                                     re.setPgCode(arr[2]);
-                                    re.setPgMessage("");
                                     re.setPgTradeNo(params.get("batch_no"));
                                     if (arr[2].startsWith("SUCCESS")) {
                                         Order order1 = new Order();
                                         order1.setOrderId(re.getOrderId());
                                         order1.setOrderStatus("T");
                                         cartService.updateOrder(order1);
+                                        re.setPgMessage("支付宝退款成功");
                                         re.setState("Y");
                                         Logger.error(arr[0] + "支付宝退款成功,返回业务结果码:" + arr[2]+",Refund="+re);
                                     } else {
                                         Logger.error(arr[0] + "支付宝退款失败,返回业务结果码:" + arr[2]+",Refund="+re);
+                                        re.setPgMessage("支付宝退款失败");
                                         re.setState("N");
                                     }
                                     cartService.updateRefund(re);

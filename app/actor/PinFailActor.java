@@ -5,11 +5,13 @@ import akka.japi.pf.ReceiveBuilder;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.base.Throwables;
 import controllers.JDPay;
+import controllers.WeiXinCtrl;
 import domain.*;
 import play.Logger;
 import play.libs.ws.WSClient;
 import service.CartService;
 import service.PromotionService;
+import util.ComUtil;
 
 import javax.inject.Inject;
 import java.sql.Timestamp;
@@ -24,7 +26,10 @@ import java.util.Map;
 public class PinFailActor extends AbstractActor {
 
     @Inject
-    public PinFailActor(PromotionService promotionService, CartService cartService, WSClient ws) {
+    private ComUtil comUtil;
+
+    @Inject
+    public PinFailActor(PromotionService promotionService, CartService cartService, WSClient ws, WeiXinCtrl weiXinCtrl) {
 
         receive(ReceiveBuilder.match(Long.class, activityId -> {
 
@@ -60,6 +65,7 @@ public class PinFailActor extends AbstractActor {
                                 refund.setPayBackFee(order.getPayTotal());
                                 refund.setReason("拼团失败,自动退款");
                                 refund.setRefundType("pin");
+                                refund.setUserId(p.getUserId());
 
                                 PinSku pinsku = new PinSku();
                                 pinsku = promotionService.getPinSkuById(pinActivity.getPinId());
@@ -69,32 +75,38 @@ public class PinFailActor extends AbstractActor {
                                 refund.setUserId(pinUser.getUserId());
 
                                 if (cartService.insertRefund(refund)) {
-                                    Map<String, String> params = JDPay.payBackParams(refund, null, null);
-                                    StringBuilder sb = new StringBuilder();
-                                    params.forEach((k, v) -> sb.append(k).append("=").append(v).append("&"));
-                                    ws.url("https://cbe.wangyin.com/cashier/refund").setContentType("application/x-www-form-urlencoded").post(sb.toString()).map(wsResponse -> {
-                                        JsonNode response = wsResponse.asJson();
-                                        Logger.info("京东退款返回数据JSON: " + response.toString());
-                                        Refund re = new Refund();
-                                        re.setId(response.get("out_trade_no").asLong());
-                                        re.setPgCode(response.get("response_code").asText());
-                                        re.setPgMessage(response.get("response_message").asText());
-                                        re.setPgTradeNo(response.get("trade_no").asText());
-                                        re.setState(response.get("is_success").asText());
+//                                    Map<String, String> params = JDPay.payBackParams(refund, null, null);
+//                                    StringBuilder sb = new StringBuilder();
+//                                    params.forEach((k, v) -> sb.append(k).append("=").append(v).append("&"));
+//                                    ws.url("https://cbe.wangyin.com/cashier/refund").setContentType("application/x-www-form-urlencoded").post(sb.toString()).map(wsResponse -> {
+//                                        JsonNode response = wsResponse.asJson();
+//                                        Logger.info("京东退款返回数据JSON: " + response.toString());
+//                                        Refund re = new Refund();
+//                                        re.setId(response.get("out_trade_no").asLong());
+//                                        re.setPgCode(response.get("response_code").asText());
+//                                        re.setPgMessage(response.get("response_message").asText());
+//                                        re.setPgTradeNo(response.get("trade_no").asText());
+//                                        re.setState(response.get("is_success").asText());
+//
+//                                        if (cartService.updateRefund(re)) {
+//                                            if (re.getState().equals("Y")) {
+//                                                Order order1 = new Order();
+//                                                order1.setOrderId(refund.getOrderId());
+//                                                order1.setOrderStatus("T");
+//                                                cartService.updateOrder(order1);
+//                                                Logger.info(p.getUserId() + "用户拼购退款成功");
+//                                            } else {
+//                                                Logger.error(p.getUserId() + "用户拼购退款失败");
+//                                            }
+//                                        }
+//                                        return wsResponse.asJson();
+//                                    });
 
-                                        if (cartService.updateRefund(re)) {
-                                            if (re.getState().equals("Y")) {
-                                                Order order1 = new Order();
-                                                order1.setOrderId(refund.getOrderId());
-                                                order1.setOrderStatus("T");
-                                                cartService.updateOrder(order1);
-                                                Logger.info(p.getUserId() + "用户拼购退款成功");
-                                            } else {
-                                                Logger.error(p.getUserId() + "用户拼购退款失败");
-                                            }
-                                        }
-                                        return wsResponse.asJson();
-                                    });
+                                    if (order.getPayMethod().equals("JD")) {
+                                        comUtil.jdPayRefund(cartService, ws, (Refund) refund);
+                                    } else if (order.getPayMethod().equals("WEIXIN")) {
+                                        comUtil.weixinPayRefund(cartService, (Refund) refund, weiXinCtrl);
+                                    }
                                 }
                             }
                         }
