@@ -104,12 +104,14 @@ public class JDPayMid {
 
                 if (cartService.updateOrder(order)) {
 
-                    Logger.info("京东支付回调订单更新订单信息: " + Json.toJson(order));
-                    system.actorSelection(ERP_PUSH).tell(order.getOrderId(), ActorRef.noSender());
-                    Logger.info("调用ERP推送订单:" + order.getOrderId());
-                    pushCustomsActor.tell(order.getOrderId(),ActorRef.noSender());
-                    Logger.info("报关订单:" + order.getOrderId());
-                    Logger.info("京东支付后端回调返回成功," + order.getOrderId());
+                    if (order.getOrderType() != null && order.getOrderType() == 1) {
+                        Logger.info("京东支付回调订单更新订单信息: " + Json.toJson(order));
+                        system.actorSelection(ERP_PUSH).tell(order.getOrderId(), ActorRef.noSender());
+                        Logger.info("调用ERP推送订单:" + order.getOrderId());
+                        pushCustomsActor.tell(order.getOrderId(),ActorRef.noSender());
+                        Logger.info("报关订单:" + order.getOrderId());
+                        Logger.info("京东支付后端回调返回成功," + order.getOrderId());
+                    }
                     return "success";
 
                 } else {
@@ -123,6 +125,7 @@ public class JDPayMid {
             return "error";
         }
     }
+
 
     /**
      * 支付宝和微信支付异步通知
@@ -151,11 +154,14 @@ public class JDPayMid {
                 order.setPgTradeNo(orderParams.getPgTradeNo());
 
                 if (cartService.updateOrder(order)) {
-                    Logger.info("异步通知,支付回调订单更新订单信息: " + Json.toJson(order));
-                    system.actorSelection(ERP_PUSH).tell(order.getOrderId(), ActorRef.noSender());
-                    Logger.info("调用ERP推送订单:" + order.getOrderId());
 
-                    Logger.info("异步通知,支付后端回调返回成功," + order.getOrderId());
+                    if (order.getOrderType() != null && order.getOrderType() == 1) {
+                        Logger.info("异步通知,支付回调订单更新订单信息: " + Json.toJson(order));
+                        system.actorSelection(ERP_PUSH).tell(order.getOrderId(), ActorRef.noSender());
+                        Logger.info("调用ERP推送订单:" + order.getOrderId());
+
+                        Logger.info("异步通知,支付后端回调返回成功," + order.getOrderId());
+                    }
                     return "success";
 
                 } else {
@@ -259,6 +265,15 @@ public class JDPayMid {
                         for (Order order2 : orders1) {
                             order2.setOrderStatus("S");
                             cartService.updateOrder(order2);
+
+                            system.actorSelection(ERP_PUSH).tell(order.getOrderId(), ActorRef.noSender());
+                            Logger.info("调用ERP推送订单:" + order.getOrderId());
+
+                            if (order.getPayMethod().equals("JD")) {
+                                pushCustomsActor.tell(order.getOrderId(),ActorRef.noSender());
+                                Logger.info("报关订单:" + order.getOrderId());
+                                Logger.info("京东支付后端回调返回成功," + order.getOrderId());
+                            }
                         }
                     }
                     if (promotionService.updatePinActivity(activity)) {

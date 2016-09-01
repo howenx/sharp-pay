@@ -486,6 +486,9 @@ public class JDPay extends Controller {
         if (newCreatePin) {
             if (activity.getJoinPersons().equals(activity.getPersonNum())) {
                 jdPayMid.pinPushMsg(activity, PIN_SUCCESS_MSG, null);
+
+
+
             }
             if (pinUsers.size() > 0) {
                 pinUser = pinUsers.get(0);
