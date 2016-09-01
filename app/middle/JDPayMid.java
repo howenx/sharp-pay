@@ -266,13 +266,13 @@ public class JDPayMid {
                             order2.setOrderStatus("S");
                             cartService.updateOrder(order2);
 
-                            system.actorSelection(ERP_PUSH).tell(order.getOrderId(), ActorRef.noSender());
-                            Logger.info("调用ERP推送订单:" + order.getOrderId());
+                            system.actorSelection(ERP_PUSH).tell(order2.getOrderId(), ActorRef.noSender());
+                            Logger.info("调用ERP推送订单:" + order2.getOrderId());
 
-                            if (order.getPayMethod().equals("JD")) {
-                                pushCustomsActor.tell(order.getOrderId(),ActorRef.noSender());
-                                Logger.info("报关订单:" + order.getOrderId());
-                                Logger.info("京东支付后端回调返回成功," + order.getOrderId());
+                            if (order2.getPayMethod().equals("JD")) {
+                                pushCustomsActor.tell(order2.getOrderId(),ActorRef.noSender());
+                                Logger.info("报关订单:" + order2.getOrderId());
+                                Logger.info("京东支付后端回调返回成功," + order2.getOrderId());
                             }
                         }
                     }
