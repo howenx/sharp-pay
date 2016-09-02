@@ -494,7 +494,7 @@ public class JDPay extends Controller {
             if (pinUsers.size() > 0) {
                 pinUser = pinUsers.get(0);
                 if (pinUser.isOrMaster()) {
-                    newScheduler.scheduleOnce(FiniteDuration.create(PIN_MILLISECONDS, MILLISECONDS), pinFailActor, order.getPinActiveId());
+                //    newScheduler.scheduleOnce(FiniteDuration.create(PIN_MILLISECONDS, MILLISECONDS), pinFailActor, order.getPinActiveId());
                 } else if (activity.getJoinPersons() < activity.getPersonNum()) {
                     jdPayMid.pinPushMsg(activity, PIN_ADD_MSG, pinUser.getId());
                 }

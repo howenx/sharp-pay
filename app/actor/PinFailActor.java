@@ -40,7 +40,7 @@ public class PinFailActor extends AbstractActor {
             PinUser pinUser = new PinUser();
             pinUser.setPinActiveId(activityId);
             List<PinUser> pinUsers = promotionService.selectPinUser(pinUser);
-            Logger.error("PinFailActor pinActivity"+pinActivity+"==="+pinUsers);
+
             if (!pinActivity.getStatus().equals("Y")) {
                 Logger.error("拼购失败,拼购活动状态不是Y"+pinActivity);
 
