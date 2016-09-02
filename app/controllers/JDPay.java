@@ -33,6 +33,7 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -90,7 +91,6 @@ public class JDPay extends Controller {
 
     @Security.Authenticated(UserAuth.class)
     public Result cashDesk(Long orderId, String paySrc) {
-
         Map<String, String> params_failed = new HashMap<>();
         params_failed.put("m_index", M_INDEX);
 

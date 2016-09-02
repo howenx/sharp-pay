@@ -89,7 +89,7 @@
         #{joinPersons},
         CURRENT_TIMESTAMP(0),
         #{status},
-        #{endAt},
+        #{endAt}::timestamp,
         #{pinTieredId}
         )
     </insert>

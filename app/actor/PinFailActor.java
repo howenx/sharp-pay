@@ -120,7 +120,7 @@ public class PinFailActor extends AbstractActor {
                         e.printStackTrace();
                     }
                 }else{
-                    Logger.error("如果加入人数小于要求成团的人数就拼购失败"+pinActivity);
+                    Logger.error("如果加入人数小于要求成团的人数就拼购失败"+pinActivity+",pinUsers.size()="+pinUsers.size());
                 }
             }
 
