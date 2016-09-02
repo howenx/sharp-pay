@@ -33,14 +33,16 @@ public class PinFailActor extends AbstractActor {
 
         receive(ReceiveBuilder.match(Long.class, activityId -> {
 
+            Logger.error("调用拼购失败PinFailActor,activityId="+activityId);
 
             PinActivity pinActivity = promotionService.selectPinActivityById(activityId);
 
             PinUser pinUser = new PinUser();
             pinUser.setPinActiveId(activityId);
             List<PinUser> pinUsers = promotionService.selectPinUser(pinUser);
-
+            Logger.error("PinFailActor pinActivity"+pinActivity+"==="+pinUsers);
             if (!pinActivity.getStatus().equals("Y")) {
+                Logger.error("拼购失败,拼购活动状态不是Y"+pinActivity);
 
             } else {
                 //如果加入人数小于要求成团的人数就拼购失败
@@ -50,7 +52,7 @@ public class PinFailActor extends AbstractActor {
                     promotionService.updatePinActivity(pinActivity);
                     try {
                         for (PinUser p : pinUsers) {
-
+                            Logger.error("PinFailActor PinUser"+p);
                             Order order = new Order();
                             order.setPinActiveId(activityId);
                             order.setUserId(p.getUserId());
@@ -116,6 +118,8 @@ public class PinFailActor extends AbstractActor {
                         Logger.error("拼购失败自动退款出现错误: " + Throwables.getStackTraceAsString(e));
                         e.printStackTrace();
                     }
+                }else{
+                    Logger.error("如果加入人数小于要求成团的人数就拼购失败");
                 }
             }
 
