@@ -45,7 +45,6 @@ public class PinFailActor extends AbstractActor {
                 Logger.error("拼购失败,拼购活动状态不是Y"+pinActivity);
 
             } else {
-                Logger.info("===pinActivity=="+pinActivity+"===="+(pinActivity.getEndAt().before(new Timestamp(new Date().getTime())))+"===="+pinUsers.size());
                 //如果加入人数小于要求成团的人数就拼购失败
                 if (pinActivity.getStatus().equals("Y") && pinUsers.size() < pinActivity.getPersonNum() && pinActivity.getEndAt().before(new Timestamp(new Date().getTime()))) {
 
