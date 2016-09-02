@@ -50,6 +50,7 @@ public class PinFailActor extends AbstractActor {
                     promotionService.updatePinActivity(pinActivity);
                     try {
                         for (PinUser p : pinUsers) {
+
                             Order order = new Order();
                             order.setPinActiveId(activityId);
                             order.setUserId(p.getUserId());
@@ -66,6 +67,8 @@ public class PinFailActor extends AbstractActor {
                                 refund.setReason("拼团失败,自动退款");
                                 refund.setRefundType("pin");
                                 refund.setUserId(p.getUserId());
+
+                                Logger.info("PinUser="+p+",refund="+refund+",order="+order);
 
                                 PinSku pinsku = new PinSku();
                                 pinsku = promotionService.getPinSkuById(pinActivity.getPinId());

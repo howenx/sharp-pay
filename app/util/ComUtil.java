@@ -124,6 +124,7 @@ public class ComUtil {
      * @param weiXinCtrl
      */
     public void weixinPayRefund(CartService cartService, Refund refund, WeiXinCtrl weiXinCtrl) {
+        Logger.info("调用微信退款refund="+refund);
 
         Order order = new Order();
         order.setOrderId(refund.getOrderId());
@@ -131,7 +132,7 @@ public class ComUtil {
         try {
             listOptional = Optional.ofNullable(cartService.getOrder(order));
         } catch (Exception e) {
-            e.printStackTrace();
+            Logger.error("微信退款查询订单异常" + Throwables.getStackTraceAsString(e));
         }
         if (listOptional.isPresent() && listOptional.get().size() == 1) {
             order = listOptional.get().get(0);
@@ -180,6 +181,8 @@ public class ComUtil {
                 }
             }
 
+        }else{
+            Logger.error("微信退款订单不存在"+refund);
         }
 
     }
