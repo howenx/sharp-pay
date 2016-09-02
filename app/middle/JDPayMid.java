@@ -21,7 +21,6 @@ import util.SysParCom;
 
 import javax.inject.Inject;
 import javax.inject.Named;
-import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.util.*;
 
@@ -108,7 +107,7 @@ public class JDPayMid {
                         Logger.info("京东支付回调订单更新订单信息: " + Json.toJson(order));
                         system.actorSelection(ERP_PUSH).tell(order.getOrderId(), ActorRef.noSender());
                         Logger.info("调用ERP推送订单:" + order.getOrderId());
-                        pushCustomsActor.tell(order.getOrderId(),ActorRef.noSender());
+                        pushCustomsActor.tell(order.getOrderId(), ActorRef.noSender());
                         Logger.info("报关订单:" + order.getOrderId());
                         Logger.info("京东支付后端回调返回成功," + order.getOrderId());
                     }
@@ -259,21 +258,15 @@ public class JDPayMid {
                     if (activity.getJoinPersons().equals(activity.getPersonNum())) {//成团
                         activity.setStatus("C");
                         order.setOrderStatus("S");
-                        Order order1 = new Order();
-                        order1.setPinActiveId(activity.getPinActiveId());
-                        List<Order> orders1 = cartService.getPinOrder(order1);
-                        for (Order order2 : orders1) {
-                            order2.setOrderStatus("S");
-                            cartService.updateOrder(order2);
+                        Order orderPin = new Order();
+                        orderPin.setPinActiveId(activity.getPinActiveId());
+                        List<Order> orderPinAll = cartService.getPinOrder(orderPin);
 
-                            system.actorSelection(ERP_PUSH).tell(order2.getOrderId(), ActorRef.noSender());
-                            Logger.info("调用ERP推送订单:" + order2.getOrderId());
-
-                            if (order2.getPayMethod().equals("JD")) {
-                                pushCustomsActor.tell(order2.getOrderId(),ActorRef.noSender());
-                                Logger.info("报关订单:" + order2.getOrderId());
-                                Logger.info("京东支付后端回调返回成功," + order2.getOrderId());
-                            }
+                        //只更新除过当前最后一个参团人外的订单,去更新成S状态
+                        for (Order opa : orderPinAll) {
+                            opa.setOrderStatus("S");
+                            cartService.updateOrder(opa);
+                            erpPinPush(opa);
                         }
                     }
                     if (promotionService.updatePinActivity(activity)) {
@@ -289,10 +282,22 @@ public class JDPayMid {
                         promotionService.insertPinUser(pinUser);
                     }
                     cartService.updateOrder(order);
+                    erpPinPush(order);
                     return "success";
                 }
             }
         } else return "success";
+    }
+
+    private void erpPinPush(Order order) {
+        system.actorSelection(ERP_PUSH).tell(order.getOrderId(), ActorRef.noSender());
+        Logger.info("拼购成团,调用ERP推送订单:" + order.getOrderId());
+
+        if (order.getPayMethod().equals("JD")) {
+            pushCustomsActor.tell(order.getOrderId(), ActorRef.noSender());
+            Logger.info("拼购成团,报关订报关订单单:" + order.getOrderId());
+            Logger.info("拼购成团,京东支付后端回调返回成功," + order.getOrderId());
+        }
     }
 
 
@@ -344,8 +349,8 @@ public class JDPayMid {
             for (PinUser p : pinUsers) {
                 if (pinUserId == null || !pinUserId.equals(p.getId())) {
                     //发消息
-                 //   msgCtrl.addMsgRec(p.getUserId(), MsgTypeEnum.Goods, message, pinSku.getPinTitle(), js_invImg.get("url").asText(), "/promotion/pin/activity/" + activity.getPinActiveId(), "V");
-                    MsgRec msg=new MsgRec();
+                    //   msgCtrl.addMsgRec(p.getUserId(), MsgTypeEnum.Goods, message, pinSku.getPinTitle(), js_invImg.get("url").asText(), "/promotion/pin/activity/" + activity.getPinActiveId(), "V");
+                    MsgRec msg = new MsgRec();
                     msg.setUserId(p.getUserId());
                     msg.setMsgType(MsgTypeEnum.Goods.getMsgType());
                     msg.setMsgContent(message);
@@ -361,12 +366,12 @@ public class JDPayMid {
 //                    map.put("url", SysParCom.PROMOTION_URL + "/promotion/pin/activity/" + activity.getPinActiveId());
 //                    pushCtrl.send_push_android_and_ios_alias(message, null, SysParCom.PUSH_TIME_TO_LIVE, map, p.getUserId().toString());
 
-                    PushMsg pushMsg=new PushMsg();
+                    PushMsg pushMsg = new PushMsg();
                     pushMsg.setAlert(message);
                     pushMsg.setTitle(null);    //标题
                     pushMsg.setAudience("alias");//给指定用户推送
                     String[] tags = new String[1];
-                    tags[0] =  p.getUserId().toString();
+                    tags[0] = p.getUserId().toString();
                     pushMsg.setAliasOrTag(tags);
                     pushMsg.setUrl(SysParCom.PROMOTION_URL + "/promotion/pin/activity/" + activity.getPinActiveId());
                     pushMsg.setTargetType("V");//跳转的类型.优惠券
@@ -383,7 +388,7 @@ public class JDPayMid {
      * @return map
      */
 
-    public Map<String, String> getCustomsBasicInfo(Order order,Long splitId) {
+    public Map<String, String> getCustomsBasicInfo(Order order, Long splitId) {
 
         OrderSplit ordersplit = new OrderSplit();
         ordersplit.setSplitId(splitId);
@@ -418,13 +423,13 @@ public class JDPayMid {
         //freight       //运费金额，单位：分，默认为0分
         //other_fee     //其它费用金额，单位：分，默认为0分
         //biz_type      //业务类型，重庆海关报送时必填
-        ObjectMapper mapper=new ObjectMapper();
+        ObjectMapper mapper = new ObjectMapper();
         Map<String, String> customs = mapper.convertValue(configuration.getObject(ordersplit.getCbeCode()), mapper.getTypeFactory().constructMapType(Map.class, String.class, String.class));
         if (customs.size() > 0) params.putAll(customs);
 
         params.put("out_trade_no", ordersplit.getOrderId().toString());
 
-     //   params.put("sub_order_no", ordersplit.getSplitId().toString());
+        //   params.put("sub_order_no", ordersplit.getSplitId().toString());
         params.put("sub_order_no", ordersplit.getOrderId().toString());
 
         params.put("sub_out_trade_no", order.getPgTradeNo());
@@ -435,7 +440,7 @@ public class JDPayMid {
     }
 
 
-    public Map<String, String> getCustomsQueryInfo(Order order,Long splitId) {
+    public Map<String, String> getCustomsQueryInfo(Order order, Long splitId) {
 
         OrderSplit ordersplit = new OrderSplit();
         ordersplit.setSplitId(splitId);
