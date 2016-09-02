@@ -72,7 +72,6 @@ public class PinFailActor extends AbstractActor {
 
                                 refund.setSkuId(pinsku.getInvId());
                                 refund.setSplitOrderId(order.getOrderSplitId());
-                                refund.setUserId(pinUser.getUserId());
 
                                 if (cartService.insertRefund(refund)) {
 //                                    Map<String, String> params = JDPay.payBackParams(refund, null, null);
