@@ -425,7 +425,11 @@ public class JDPayMid {
         //biz_type      //业务类型，重庆海关报送时必填
         ObjectMapper mapper = new ObjectMapper();
         Map<String, String> customs = mapper.convertValue(configuration.getObject(ordersplit.getCbeCode()), mapper.getTypeFactory().constructMapType(Map.class, String.class, String.class));
-        if (customs.size() > 0) params.putAll(customs);
+        if (null!=customs&&customs.size() > 0) {
+            params.putAll(customs);
+        }else{
+            Logger.error("京东报关参数为空ordersplit="+ordersplit);
+        }
 
         params.put("out_trade_no", ordersplit.getOrderId().toString());
 
